@@ -280,8 +280,8 @@
     .subcat-acts { display: flex; align-items: center; gap: 5px; }
 
     .topic-row {
-      display: flex; align-items: center; gap: 8px;
-      padding: 8px 13px 8px 50px;
+      display: flex; align-items: flex-start; gap: 10px;
+      padding: 9px 13px 9px 50px;
       border-bottom: 1px solid var(--grey-border);
       cursor: pointer;
       min-width: 0;
@@ -293,10 +293,17 @@
       background: linear-gradient(135deg,#fde68a,#f59e0b);
       flex-shrink: 0;
       display: flex; align-items: center; justify-content: center;
-      font-size: 13px;
+      font-size: 13px; margin-top: 1px;
     }
-    .topic-name { font-size: 13px; flex: 1; color: var(--navy); min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .topic-tags { display: flex; gap: 4px; flex-wrap: wrap; flex-shrink: 0; }
+    .topic-main   { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 5px; }
+    .topic-name   { font-size: 13px; color: var(--navy); font-weight: 500; }
+    .topic-meta   { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .topic-tags   { display: flex; gap: 4px; flex-wrap: wrap; }
+    .topic-gbs    { display: flex; align-items: center; gap: 5px; flex-wrap: wrap; }
+    .topic-meta-sep { color: #cbd5e1; font-size: 10px; }
+    .gb-dot-mini  { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; display: inline-block; }
+    .gb-name-mini { font-size: 11px; color: var(--grey-text); }
+    .topic-no-gbs { font-size: 11px; color: #cbd5e1; font-style: italic; }
 
     .tag {
       font-size: 10.5px; font-weight: 500;
@@ -628,13 +635,17 @@
           </div>
           <div class="topic-row">
             <div class="topic-thumb">🍱</div>
-            <span class="topic-name">Welcome</span>
-            <span class="tag tag-gb">Beach Retreat Villa</span>
+            <div class="topic-main">
+              <span class="topic-name">Welcome</span>
+              <div class="topic-meta"><span class="tag tag-gb">Beach Retreat Villa</span></div>
+            </div>
           </div>
           <div class="topic-row">
             <div class="topic-thumb" style="background:linear-gradient(135deg,#bfdbfe,#3b82f6)">🌤</div>
-            <span class="topic-name">Weather in {{city}}</span>
-            <span class="tag tag-sh">kitchen hardware</span>
+            <div class="topic-main">
+              <span class="topic-name">Weather in {{city}}</span>
+              <div class="topic-meta"><span class="tag tag-sh">kitchen hardware</span></div>
+            </div>
           </div>
           <div class="subcat-row" style="margin-top:8px">
             <span class="subcat-arrow">↳</span>
@@ -723,15 +734,27 @@
               <span class="subcat-arrow">↳</span>
               <span class="subcat-name">Welcome</span>
             </div>
-            <div class="topic-row" onclick="openTopicModal('Welcome','Welcome')">
+            <div class="topic-row" data-topic="Welcome" onclick="openTopicModal('Welcome')">
               <div class="topic-thumb">🍱</div>
-              <span class="topic-name">Welcome</span>
-              <div class="topic-tags"><span class="tag tag-sh">kitchen hardware</span></div>
+              <div class="topic-main">
+                <span class="topic-name">Welcome</span>
+                <div class="topic-meta">
+                  <div class="topic-tags"></div>
+                  <span class="topic-meta-sep">·</span>
+                  <div class="topic-gbs"></div>
+                </div>
+              </div>
             </div>
-            <div class="topic-row" onclick="openTopicModal('Weather in {{city}}','Weather in {{city}}')">
+            <div class="topic-row" data-topic="Weather in {{city}}" onclick="openTopicModal('Weather in {{city}}')">
               <div class="topic-thumb" style="background:linear-gradient(135deg,#bfdbfe,#3b82f6)">🌤</div>
-              <span class="topic-name">Weather in {{city}}</span>
-              <div class="topic-tags"><span class="tag tag-sh">kitchen hardware</span></div>
+              <div class="topic-main">
+                <span class="topic-name">Weather in {{city}}</span>
+                <div class="topic-meta">
+                  <div class="topic-tags"></div>
+                  <span class="topic-meta-sep">·</span>
+                  <div class="topic-gbs"></div>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -745,10 +768,16 @@
               <span class="subcat-arrow">↳</span>
               <span class="subcat-name">Breakfast</span>
             </div>
-            <div class="topic-row" onclick="openTopicModal('Breakfast Guide','Breakfast Guide')">
+            <div class="topic-row" data-topic="Breakfast Guide" onclick="openTopicModal('Breakfast Guide')">
               <div class="topic-thumb" style="background:linear-gradient(135deg,#fed7aa,#f97316)">🥐</div>
-              <span class="topic-name">Breakfast Guide</span>
-              <div class="topic-tags"><span class="tag tag-sh">beach property rules</span></div>
+              <div class="topic-main">
+                <span class="topic-name">Breakfast Guide</span>
+                <div class="topic-meta">
+                  <div class="topic-tags"></div>
+                  <span class="topic-meta-sep">·</span>
+                  <div class="topic-gbs"></div>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -762,10 +791,16 @@
               <span class="subcat-arrow">↳</span>
               <span class="subcat-name">Amenities</span>
             </div>
-            <div class="topic-row" onclick="openTopicModal('Wi-Fi Setup','Wi-Fi Setup')">
+            <div class="topic-row" data-topic="Wi-Fi Setup" onclick="openTopicModal('Wi-Fi Setup')">
               <div class="topic-thumb" style="background:linear-gradient(135deg,#d1fae5,#10b981)">📶</div>
-              <span class="topic-name">Wi-Fi Setup</span>
-              <div class="topic-tags"><span class="tag tag-sh">kitchen hardware</span></div>
+              <div class="topic-main">
+                <span class="topic-name">Wi-Fi Setup</span>
+                <div class="topic-meta">
+                  <div class="topic-tags"></div>
+                  <span class="topic-meta-sep">·</span>
+                  <div class="topic-gbs"></div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -774,31 +809,22 @@
       <!-- Tags Tab -->
       <div id="tags-tab" class="tab-content">
         <div class="tag-editor">
-          <div class="tag-item" onclick="openTagModal('kitchen hardware')">
+          <div class="tag-item" data-tag="kitchen hardware" onclick="openTagModal('kitchen hardware')">
             <div class="tag-pill">kitchen hardware</div>
-            <div class="tag-gbs">
-              <span class="gb-badge">Beach Retreat Villa</span>
-              <span class="gb-badge">Mountain Lodge</span>
-              <span class="gb-badge">City Apartment</span>
-            </div>
-            <span class="tag-gb-count">3 guidebooks</span>
+            <div class="tag-gbs"></div>
+            <span class="tag-gb-count"></span>
           </div>
 
-          <div class="tag-item" onclick="openTagModal('beach property rules')">
+          <div class="tag-item" data-tag="beach property rules" onclick="openTagModal('beach property rules')">
             <div class="tag-pill">beach property rules</div>
-            <div class="tag-gbs">
-              <span class="gb-badge">Beach Retreat Villa</span>
-              <span class="gb-badge">City Apartment</span>
-            </div>
-            <span class="tag-gb-count">2 guidebooks</span>
+            <div class="tag-gbs"></div>
+            <span class="tag-gb-count"></span>
           </div>
 
-          <div class="tag-item" onclick="openTagModal('london attractions')">
+          <div class="tag-item" data-tag="london attractions" onclick="openTagModal('london attractions')">
             <div class="tag-pill">london attractions</div>
-            <div class="tag-gbs">
-              <span class="gb-badge">City Apartment</span>
-            </div>
-            <span class="tag-gb-count">1 guidebook</span>
+            <div class="tag-gbs"></div>
+            <span class="tag-gb-count"></span>
           </div>
         </div>
       </div>
@@ -900,11 +926,114 @@
 <div class="proto-badge">Prototype — v0.2</div>
 
 <script>
-  /* ── SCREEN NAVIGATION ── */
+  /* ══════════════════════════════════════
+     STATE — single source of truth
+  ══════════════════════════════════════ */
+  var ALL_GUIDEBOOKS = ['Beach Retreat Villa', 'Mountain Lodge', 'City Apartment'];
+
+  var GB_COLORS = {
+    'Beach Retreat Villa': '#0e7c7b',
+    'Mountain Lodge':      '#7c3aed',
+    'City Apartment':      '#d97706'
+  };
+
+  // tag → which guidebooks it's assigned to
+  var tagGuidebooks = {
+    'kitchen hardware':     ['Beach Retreat Villa', 'Mountain Lodge', 'City Apartment'],
+    'beach property rules': ['Beach Retreat Villa', 'City Apartment'],
+    'london attractions':   ['City Apartment']
+  };
+
+  // topic → which tags it has
+  var topicTags = {
+    'Welcome':             ['kitchen hardware'],
+    'Weather in {{city}}': ['kitchen hardware'],
+    'Breakfast Guide':     ['beach property rules'],
+    'Wi-Fi Setup':         ['kitchen hardware']
+  };
+
+  // currently open topic/tag in modal
+  var _currentTopic = null;
+  var _currentTag   = null;
+
+  /* ── Compute guidebooks for a topic (union across its tags) ── */
+  function getTopicGuidebooks(topicId) {
+    var seen = {}, result = [];
+    (topicTags[topicId] || []).forEach(function(t) {
+      (tagGuidebooks[t] || []).forEach(function(gb) {
+        if (!seen[gb]) { seen[gb] = true; result.push(gb); }
+      });
+    });
+    return result;
+  }
+
+  /* ══════════════════════════════════════
+     RENDER HELPERS
+  ══════════════════════════════════════ */
+  function renderTopicRow(topicId) {
+    var row = document.querySelector('.topic-row[data-topic="' + CSS.escape(topicId) + '"]');
+    if (!row) return;
+
+    var tags = topicTags[topicId] || [];
+    var gbs  = getTopicGuidebooks(topicId);
+
+    // Tags section
+    var tagsEl = row.querySelector('.topic-tags');
+    if (tagsEl) {
+      tagsEl.innerHTML = tags.length
+        ? tags.map(function(t) { return '<span class="tag tag-sh">' + t + '</span>'; }).join('')
+        : '<span class="topic-no-gbs">No tags</span>';
+    }
+
+    // Guidebooks section
+    var gbsEl = row.querySelector('.topic-gbs');
+    if (gbsEl) {
+      if (gbs.length === 0) {
+        gbsEl.innerHTML = '<span class="topic-no-gbs">No guidebooks</span>';
+      } else {
+        gbsEl.innerHTML = gbs.map(function(gb) {
+          return '<span class="gb-dot-mini" style="background:' + GB_COLORS[gb] + '"></span>'
+               + '<span class="gb-name-mini">' + gb + '</span>';
+        }).join('<span class="topic-meta-sep" style="margin:0 2px">·</span>');
+      }
+    }
+
+    // Show/hide separator dot between tags and gbs
+    var sep = row.querySelector('.topic-meta > .topic-meta-sep');
+    if (sep) sep.style.display = (tags.length && gbs.length) ? '' : 'none';
+  }
+
+  function renderTagItem(tagName) {
+    var item = document.querySelector('.tag-item[data-tag="' + CSS.escape(tagName) + '"]');
+    if (!item) return;
+
+    var gbs = tagGuidebooks[tagName] || [];
+
+    var gbsEl = item.querySelector('.tag-gbs');
+    if (gbsEl) {
+      gbsEl.innerHTML = gbs.map(function(gb) {
+        return '<span class="gb-badge">' + gb + '</span>';
+      }).join('');
+    }
+
+    var countEl = item.querySelector('.tag-gb-count');
+    if (countEl) {
+      countEl.textContent = gbs.length + ' guidebook' + (gbs.length !== 1 ? 's' : '');
+    }
+  }
+
+  function renderAll() {
+    Object.keys(topicTags).forEach(renderTopicRow);
+    Object.keys(tagGuidebooks).forEach(renderTagItem);
+  }
+
+  /* ══════════════════════════════════════
+     SCREEN NAVIGATION
+  ══════════════════════════════════════ */
   function goScreen(name) {
-    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.screen').forEach(function(s) { s.classList.remove('active'); });
     document.getElementById('screen-' + name).classList.add('active');
-    document.querySelectorAll('.nav-item[id^="nav-"]').forEach(n => n.classList.remove('active'));
+    document.querySelectorAll('.nav-item[id^="nav-"]').forEach(function(n) { n.classList.remove('active'); });
     var el = document.getElementById('nav-' + name);
     if (el) el.classList.add('active');
   }
@@ -921,70 +1050,125 @@
 
   /* ── HUB TAB SWITCHING ── */
   function switchHubTab(tab, el) {
-    document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(function(t) { t.classList.remove('active'); });
     document.getElementById(tab + '-tab').classList.add('active');
-    document.querySelectorAll('.hub-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.hub-tab').forEach(function(t) { t.classList.remove('active'); });
     el.classList.add('active');
   }
 
-  /* ── TOPIC MODAL ── */
-  function openTopicModal(title, topic) {
-    document.getElementById('topic-modal-title').textContent = title;
-    document.getElementById('topic-ck-kitchen').checked = true;
-    document.getElementById('topic-ck-beach').checked = false;
-    document.getElementById('topic-ck-london').checked = false;
+  /* ══════════════════════════════════════
+     TOPIC MODAL
+  ══════════════════════════════════════ */
+  function openTopicModal(topicId) {
+    _currentTopic = topicId;
+    document.getElementById('topic-modal-title').textContent = topicId;
+
+    var activeTags = topicTags[topicId] || [];
+    document.getElementById('topic-ck-kitchen').checked = activeTags.indexOf('kitchen hardware')     >= 0;
+    document.getElementById('topic-ck-beach').checked   = activeTags.indexOf('beach property rules') >= 0;
+    document.getElementById('topic-ck-london').checked  = activeTags.indexOf('london attractions')   >= 0;
+
     updateTopicGBList();
     document.getElementById('topic-modal').classList.add('open');
   }
 
   function closeTopicModal() {
     document.getElementById('topic-modal').classList.remove('open');
+    _currentTopic = null;
   }
 
   function updateTopicGBList() {
-    var kitchen = document.getElementById('topic-ck-kitchen').checked;
-    var beach   = document.getElementById('topic-ck-beach').checked;
-    var london  = document.getElementById('topic-ck-london').checked;
+    // Build temporary tag list from current checkbox state
+    var tempTags = [];
+    if (document.getElementById('topic-ck-kitchen').checked) tempTags.push('kitchen hardware');
+    if (document.getElementById('topic-ck-beach').checked)   tempTags.push('beach property rules');
+    if (document.getElementById('topic-ck-london').checked)  tempTags.push('london attractions');
 
-    var beachActive    = kitchen || beach;
-    var mountainActive = kitchen;
-    var cityActive     = kitchen || beach || london;
+    // Compute guidebooks from those tags
+    var seen = {}, activeGBs = {};
+    tempTags.forEach(function(t) {
+      (tagGuidebooks[t] || []).forEach(function(gb) { activeGBs[gb] = true; });
+    });
 
-    document.getElementById('topic-gb-beach').classList.toggle('faded', !beachActive);
-    document.getElementById('topic-gb-mountain').classList.toggle('faded', !mountainActive);
-    document.getElementById('topic-gb-city').classList.toggle('faded', !cityActive);
+    ALL_GUIDEBOOKS.forEach(function(gb) {
+      var el = document.getElementById('topic-gb-' + gb.toLowerCase().replace(/ /g, '-').replace(/[^a-z0-9-]/g, ''));
+      if (el) el.classList.toggle('faded', !activeGBs[gb]);
+    });
 
-    var removed = [!beachActive, !mountainActive, !cityActive].filter(Boolean).length;
+    // Fallback IDs
+    document.getElementById('topic-gb-beach')    && document.getElementById('topic-gb-beach').classList.toggle('faded',    !activeGBs['Beach Retreat Villa']);
+    document.getElementById('topic-gb-mountain') && document.getElementById('topic-gb-mountain').classList.toggle('faded', !activeGBs['Mountain Lodge']);
+    document.getElementById('topic-gb-city')     && document.getElementById('topic-gb-city').classList.toggle('faded',     !activeGBs['City Apartment']);
+
+    var removedCount = ALL_GUIDEBOOKS.filter(function(gb) { return !activeGBs[gb]; }).length;
     var wb = document.getElementById('topic-warn-banner');
-    if (removed > 0) {
+    if (removedCount > 0) {
       wb.classList.add('show');
-      document.getElementById('topic-warn-count').textContent = removed;
+      document.getElementById('topic-warn-count').textContent = removedCount;
     } else {
       wb.classList.remove('show');
     }
   }
 
   function saveTopicModal() {
+    if (!_currentTopic) return;
+
+    // Save tag state from checkboxes
+    var newTags = [];
+    if (document.getElementById('topic-ck-kitchen').checked) newTags.push('kitchen hardware');
+    if (document.getElementById('topic-ck-beach').checked)   newTags.push('beach property rules');
+    if (document.getElementById('topic-ck-london').checked)  newTags.push('london attractions');
+
+    topicTags[_currentTopic] = newTags;
+    renderTopicRow(_currentTopic);
+
     closeTopicModal();
-    toast('Topic changes saved');
+    toast('✓ Topic updated');
   }
 
-  /* ── TAG MODAL ── */
-  function openTagModal(tag) {
-    document.getElementById('tag-modal-name').textContent = tag;
-    document.getElementById('tag-gb-beach').checked = true;
-    document.getElementById('tag-gb-mountain').checked = tag === 'kitchen hardware';
-    document.getElementById('tag-gb-city').checked = true;
+  /* ══════════════════════════════════════
+     TAG MODAL
+  ══════════════════════════════════════ */
+  function openTagModal(tagName) {
+    _currentTag = tagName;
+    document.getElementById('tag-modal-name').textContent = tagName;
+
+    var assignedGBs = tagGuidebooks[tagName] || [];
+    document.getElementById('tag-gb-beach').checked    = assignedGBs.indexOf('Beach Retreat Villa') >= 0;
+    document.getElementById('tag-gb-mountain').checked = assignedGBs.indexOf('Mountain Lodge')      >= 0;
+    document.getElementById('tag-gb-city').checked     = assignedGBs.indexOf('City Apartment')      >= 0;
+
     document.getElementById('tag-modal').classList.add('open');
   }
 
   function closeTagModal() {
     document.getElementById('tag-modal').classList.remove('open');
+    _currentTag = null;
   }
 
   function saveTagModal() {
+    if (!_currentTag) return;
+
+    // Save guidebook assignments from checkboxes
+    var newGBs = [];
+    if (document.getElementById('tag-gb-beach').checked)    newGBs.push('Beach Retreat Villa');
+    if (document.getElementById('tag-gb-mountain').checked) newGBs.push('Mountain Lodge');
+    if (document.getElementById('tag-gb-city').checked)     newGBs.push('City Apartment');
+
+    tagGuidebooks[_currentTag] = newGBs;
+
+    // Re-render the tag item in the Tags tab
+    renderTagItem(_currentTag);
+
+    // Re-render all topic rows that use this tag (guidebook list may have changed)
+    Object.keys(topicTags).forEach(function(topicId) {
+      if (topicTags[topicId].indexOf(_currentTag) >= 0) {
+        renderTopicRow(topicId);
+      }
+    });
+
     closeTagModal();
-    toast('Tag mapping saved');
+    toast('✓ Tag mapping updated');
   }
 
   /* ── TOAST ── */
@@ -995,6 +1179,9 @@
     clearTimeout(el._t);
     el._t = setTimeout(function() { el.classList.remove('show'); }, 3200);
   }
+
+  /* ── INIT: render everything on load ── */
+  document.addEventListener('DOMContentLoaded', renderAll);
 </script>
 </body>
 </html>
