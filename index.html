@@ -1,0 +1,1485 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Touch Stay — Content Hub Prototype</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --teal:        #14b8a8;
+      --teal-dark:   #0e7c7b;
+      --teal-bg:     #e6fffd;
+      --navy:        #1e293b;
+      --grey-light:  #f8fafc;
+      --grey-mid:    #f1f5f9;
+      --grey-border: #e2e8f0;
+      --grey-text:   #64748b;
+      --grey-dark:   #475569;
+      --tag-teal-bg: #ccfbf1;
+      --tag-teal-t:  #0f766e;
+      --tag-pink-bg: #fce7f3;
+      --tag-pink-t:  #9d174d;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #f1f5f9;
+      display: flex;
+      height: 100vh;
+      overflow: hidden;
+      color: var(--navy);
+      font-size: 14px;
+    }
+
+    /* ─── SIDEBAR ─────────────────────────────────── */
+    .sidebar {
+      width: 236px;
+      min-width: 236px;
+      background: white;
+      border-right: 1px solid var(--grey-border);
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      overflow-y: auto;
+      overflow-x: hidden;
+    }
+
+    .sidebar-logo {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      padding: 14px 16px 12px;
+      border-bottom: 1px solid var(--grey-border);
+    }
+    .logo-icon { width: 30px; height: 30px; flex-shrink: 0; }
+    .logo-text  { font-size: 15px; font-weight: 700; color: var(--navy); }
+
+    .sidebar-nav { flex: 1; padding: 6px 0 4px; }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      padding: 7px 16px;
+      font-size: 13.5px;
+      font-weight: 500;
+      color: var(--grey-dark);
+      cursor: pointer;
+      text-decoration: none;
+      transition: background 0.12s;
+      border-radius: 0;
+      position: relative;
+    }
+    .nav-item:hover { background: var(--grey-mid); }
+    .nav-item.active { background: #e6fffd; color: var(--teal-dark); }
+    .nav-icon { width: 16px; height: 16px; flex-shrink: 0; opacity: 0.65; }
+    .nav-item.active .nav-icon { opacity: 1; }
+    .nav-badge {
+      margin-left: auto;
+      background: var(--grey-mid);
+      color: var(--grey-dark);
+      font-size: 10.5px;
+      font-weight: 600;
+      padding: 1px 7px;
+      border-radius: 10px;
+      border: 1px solid var(--grey-border);
+    }
+
+    .section-label {
+      font-size: 10.5px;
+      font-weight: 600;
+      color: #94a3b8;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      padding: 12px 16px 4px;
+    }
+
+    .property-box {
+      margin: 6px 10px 4px;
+      padding: 7px 10px;
+      background: var(--grey-mid);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+    }
+    .property-thumb {
+      width: 26px; height: 26px;
+      border-radius: 6px;
+      background: linear-gradient(135deg, #6ee7b7, #059669);
+      flex-shrink: 0;
+    }
+    .property-name { font-size: 12.5px; font-weight: 600; flex: 1; color: var(--navy); }
+    .property-caret { color: #94a3b8; font-size: 10px; }
+
+    .sidebar-footer {
+      border-top: 1px solid var(--grey-border);
+      padding: 10px 16px 12px;
+    }
+    .plan-row { display: flex; align-items: center; justify-content: space-between; }
+    .plan-name { font-size: 12px; font-weight: 700; color: var(--navy); }
+    .plan-link { font-size: 11px; color: var(--teal-dark); font-weight: 600; cursor: pointer; text-decoration: underline; }
+    .plan-sub  { font-size: 11px; color: var(--grey-text); margin-top: 1px; }
+
+    .user-row {
+      display: flex; align-items: center; gap: 8px;
+      padding: 8px 0 2px;
+    }
+    .user-avatar {
+      width: 28px; height: 28px; border-radius: 50%;
+      background: #c7d2fe; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 10px; font-weight: 700; color: #4338ca;
+    }
+    .user-name { font-size: 12px; font-weight: 600; color: var(--navy); }
+    .user-type { font-size: 11px; color: var(--grey-text); }
+
+    /* ─── MAIN WRAPPER ────────────────────────────── */
+    .main-wrapper { display: flex; flex: 1; overflow: hidden; min-width: 0; }
+
+    /* ─── SCREENS ─────────────────────────────────── */
+    .screen { display: none; flex: 1; overflow: hidden; }
+    .screen.active { display: flex; }
+
+    /* ─── RIGHT PREVIEW PANEL ─────────────────────── */
+    .preview-panel {
+      width: 284px;
+      min-width: 284px;
+      background: white;
+      border-left: 1px solid var(--grey-border);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 16px 14px 0;
+      overflow-y: auto;
+    }
+
+    .phone-wrap {
+      width: 218px;
+      border-radius: 22px;
+      border: 1.5px solid var(--grey-border);
+      overflow: hidden;
+      box-shadow: 0 6px 24px rgba(0,0,0,0.09);
+      margin-bottom: 16px;
+    }
+    .phone-bar {
+      background: var(--teal-dark);
+      padding: 10px 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .phone-avatar-sm {
+      width: 27px; height: 27px; border-radius: 50%;
+      background: #c7d2fe; border: 2px solid rgba(255,255,255,0.6);
+      flex-shrink: 0;
+    }
+    .phone-bar-icons { margin-left: auto; display: flex; gap: 9px; }
+
+    .phone-body { background: white; }
+    .phone-section { padding: 10px 11px; }
+    .phone-section + .phone-section { border-top: 1px solid #f1f5f9; }
+    .phone-section-head {
+      font-size: 12.5px; font-weight: 700; color: var(--navy);
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 6px;
+    }
+    .phone-img {
+      width: 100%; height: 72px; border-radius: 5px;
+      background: linear-gradient(135deg, #fde68a, #f97316);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 26px; margin-bottom: 7px;
+    }
+    .phone-text { font-size: 10.5px; color: #374151; line-height: 1.45; margin-bottom: 6px; }
+    .phone-helpful { font-size: 9.5px; color: #94a3b8; }
+    .phone-nav {
+      background: #1e293b;
+      display: flex; justify-content: space-around;
+      padding: 7px 0 5px;
+    }
+    .phone-nav-btn {
+      display: flex; flex-direction: column; align-items: center; gap: 2px;
+      cursor: pointer;
+    }
+    .phone-nav-label {
+      font-size: 8.5px; color: rgba(255,255,255,0.6); font-weight: 700;
+      letter-spacing: 0.04em;
+    }
+    .phone-nav-btn.active .phone-nav-label { color: var(--teal); }
+
+    .preview-qr-row {
+      display: flex; align-items: center; gap: 10px;
+      width: 100%; margin-bottom: 10px;
+    }
+    .qr-box {
+      width: 44px; height: 44px; flex-shrink: 0;
+      background: var(--grey-mid); border-radius: 5px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .qr-label { font-size: 11px; color: var(--grey-text); line-height: 1.4; }
+    .btn-share-link {
+      width: 100%;
+      background: var(--navy);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 10px;
+      font-size: 12.5px; font-weight: 700;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+      margin-bottom: 16px;
+    }
+
+    /* ─── CONTENT AREA ────────────────────────────── */
+    .content-area {
+      flex: 1;
+      overflow-y: auto;
+      padding: 26px 26px 48px;
+      min-width: 0;
+    }
+
+    .page-title { font-size: 27px; font-weight: 700; margin-bottom: 18px; color: var(--navy); }
+
+    /* ─── TEMPLATE BANNER ─────────────────────────── */
+    .tpl-banner {
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      border-radius: 10px;
+      padding: 14px 16px;
+      margin-bottom: 16px;
+      display: flex;
+      gap: 12px;
+    }
+    .tpl-banner-icon { color: #3b82f6; flex-shrink: 0; margin-top: 2px; }
+    .tpl-title { font-size: 13.5px; font-weight: 600; color: #1e40af; margin-bottom: 2px; }
+    .tpl-sub   { font-size: 12px; color: #60a5fa; line-height: 1.45; margin-bottom: 10px; }
+    .tpl-actions { display: flex; gap: 8px; }
+    .btn-ghost {
+      padding: 5px 11px;
+      font-size: 12px; font-weight: 600;
+      border-radius: 6px;
+      border: 1.5px solid #cbd5e1;
+      background: white;
+      color: var(--grey-dark);
+      cursor: pointer;
+      display: inline-flex; align-items: center; gap: 5px;
+      transition: border-color 0.15s;
+    }
+    .btn-ghost:hover { border-color: #94a3b8; }
+
+    /* ─── CATEGORY CARDS ──────────────────────────── */
+    .cat-list { display: flex; flex-direction: column; gap: 5px; }
+
+    .cat-card {
+      background: white;
+      border: 1px solid var(--grey-border);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .cat-row {
+      display: flex; align-items: center; gap: 9px;
+      padding: 11px 13px;
+      cursor: pointer;
+      user-select: none;
+    }
+    .cat-row:hover { background: #fafbfc; }
+
+    .drag-dots {
+      display: grid;
+      grid-template-columns: repeat(3, 3.5px);
+      gap: 2.5px;
+      cursor: grab;
+      flex-shrink: 0;
+      opacity: 0.55;
+    }
+    .drag-dots.disabled { opacity: 0.2; cursor: not-allowed; }
+    .d  { width: 3.5px; height: 3.5px; border-radius: 50%; background: #94a3b8; }
+
+    .cat-icon { font-size: 15px; width: 20px; text-align: center; flex-shrink: 0; }
+    .cat-name { font-size: 14.5px; font-weight: 600; flex: 1; color: var(--navy); }
+    .chevron  { color: #94a3b8; font-size: 12px; transition: transform 0.18s; flex-shrink: 0; }
+    .chevron.open { transform: rotate(180deg); }
+    .kebab    { color: #94a3b8; padding: 2px 5px; border-radius: 4px; cursor: pointer; font-size: 17px; line-height: 1; flex-shrink: 0; }
+    .kebab:hover { background: var(--grey-mid); }
+
+    .cat-body { display: none; border-top: 1px solid var(--grey-border); }
+    .cat-body.open { display: block; }
+
+    /* subcategory */
+    .subcat { border-bottom: 1px solid var(--grey-border); }
+    .subcat:last-of-type { border-bottom: none; }
+    .subcat-row {
+      display: flex; align-items: center; gap: 7px;
+      padding: 9px 13px 9px 34px;
+      cursor: pointer;
+    }
+    .subcat-row:hover { background: #fafbfc; }
+    .subcat-arrow { font-size: 10px; color: #94a3b8; margin-right: 2px; }
+    .subcat-name  { font-size: 13.5px; font-weight: 500; flex: 1; color: var(--navy); }
+    .subcat-acts  { display: flex; align-items: center; gap: 5px; }
+    .icon-btn { color: #94a3b8; cursor: pointer; padding: 3px 4px; border-radius: 4px; display: inline-flex; }
+    .icon-btn:hover { background: var(--grey-mid); color: var(--grey-dark); }
+    .icon-btn svg { display: block; }
+
+    /* topics */
+    .topic-list { display: flex; flex-direction: column; }
+    .topic-row  {
+      display: flex; align-items: center; gap: 8px;
+      padding: 8px 13px 8px 50px;
+      border-top: 1px solid var(--grey-border);
+    }
+    .topic-row:hover { background: #fafbfc; }
+    .topic-thumb {
+      width: 30px; height: 30px; border-radius: 5px;
+      background: linear-gradient(135deg,#fde68a,#f59e0b);
+      flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px;
+    }
+    .topic-name { font-size: 13px; flex: 1; color: var(--navy); }
+    .topic-acts { display: flex; align-items: center; gap: 5px; flex-shrink: 0; }
+
+    /* tags */
+    .tag {
+      font-size: 10.5px; font-weight: 500;
+      padding: 2px 8px; border-radius: 10px; white-space: nowrap;
+      display: inline-flex; align-items: center;
+    }
+    .tag-gb  { background: var(--tag-teal-bg); color: var(--tag-teal-t); }
+    .tag-sh  { background: var(--tag-pink-bg); color: var(--tag-pink-t); }
+    .tag-wdg { background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; }
+
+    /* add buttons */
+    .add-row {
+      padding: 8px 13px 8px 50px;
+      border-top: 1px solid var(--grey-border);
+    }
+    .add-row.subcat-add { padding-left: 34px; }
+    .add-link {
+      display: inline-flex; align-items: center; gap: 5px;
+      font-size: 12.5px; font-weight: 600; color: var(--teal-dark); cursor: pointer;
+    }
+    .add-link:hover { opacity: 0.8; }
+
+    /* ─── SHARED CONTENT TRAY ─────────────────────── */
+    .tray {
+      background: white;
+      border: 1px solid var(--grey-border);
+      border-radius: 8px;
+      margin-top: 14px;
+      overflow: hidden;
+    }
+    .tray-top {
+      display: flex; align-items: center;
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--grey-border);
+      gap: 10px;
+    }
+    .tray-title { font-size: 13px; font-weight: 600; color: var(--navy); display: flex; align-items: center; gap: 6px; }
+    .tray-search {
+      flex: 1; position: relative; max-width: 260px;
+    }
+    .tray-search input {
+      width: 100%; padding: 5px 9px 5px 28px;
+      border: 1px solid var(--grey-border); border-radius: 6px;
+      font-size: 12.5px; color: var(--navy); outline: none;
+      font-family: inherit;
+    }
+    .tray-search input:focus { border-color: var(--teal); }
+    .tray-search-icon { position: absolute; left: 8px; top: 50%; transform: translateY(-50%); color: #94a3b8; }
+    .tray-manage { font-size: 12px; color: var(--teal-dark); font-weight: 600; cursor: pointer; white-space: nowrap; }
+
+    .tray-chips {
+      display: flex; gap: 8px;
+      padding: 10px 14px;
+      overflow-x: auto;
+    }
+    .tray-chips::-webkit-scrollbar { height: 4px; }
+
+    .chip {
+      display: flex; align-items: center; gap: 6px;
+      padding: 6px 10px;
+      background: var(--grey-mid);
+      border: 1px solid var(--grey-border);
+      border-radius: 8px;
+      cursor: grab;
+      flex-shrink: 0;
+      transition: box-shadow 0.15s;
+    }
+    .chip:hover { box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+    .chip.already { opacity: 0.4; cursor: not-allowed; }
+    .chip-thumb {
+      width: 26px; height: 26px; border-radius: 4px;
+      background: #c7d2fe; flex-shrink: 0;
+    }
+    .chip-label { font-size: 12px; font-weight: 500; max-width: 88px; color: var(--navy); }
+    .chip-sub   { font-size: 10px; color: #94a3b8; }
+
+    .tray-footer {
+      padding: 6px 14px 10px;
+      border-top: 1px solid var(--grey-border);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .btn-add-all {
+      padding: 5px 12px;
+      font-size: 12.5px; font-weight: 600;
+      background: white;
+      border: 1.5px solid var(--grey-border);
+      border-radius: 6px;
+      color: var(--teal-dark);
+      cursor: pointer;
+    }
+    .btn-add-all:hover { border-color: var(--teal-dark); }
+
+    /* ─── CONTENT HUB SCREEN ──────────────────────── */
+    .search-row { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; }
+    .search-wrap { flex: 1; max-width: 340px; position: relative; }
+    .search-wrap input {
+      width: 100%; padding: 8px 12px 8px 34px;
+      border: 1px solid var(--grey-border); border-radius: 8px;
+      font-size: 13.5px; color: var(--navy); outline: none;
+      background: white; font-family: inherit;
+    }
+    .search-wrap input:focus { border-color: var(--teal); }
+    .search-icon { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: #94a3b8; }
+    .view-btn { padding: 7px 10px; border: 1px solid var(--grey-border); border-radius: 7px; background: white; cursor: pointer; color: var(--grey-dark); display: inline-flex; }
+    .view-btn:hover { background: var(--grey-mid); }
+
+    .bulk-bar {
+      display: none;
+      align-items: center; gap: 10px;
+      padding: 9px 14px;
+      background: #f0fdf4; border: 1px solid #bbf7d0;
+      border-radius: 8px; margin-bottom: 12px;
+    }
+    .bulk-bar.show { display: flex; }
+    .bulk-count { font-size: 13px; color: var(--navy); font-weight: 500; }
+    .btn-make-shared {
+      margin-left: auto;
+      padding: 6px 14px;
+      background: var(--teal-dark); color: white;
+      border: none; border-radius: 6px;
+      font-size: 13px; font-weight: 700;
+      cursor: pointer;
+    }
+    .btn-make-shared:hover { background: #0a6060; }
+
+    .filter-tabs {
+      display: flex; gap: 2px;
+      border-bottom: 2px solid var(--grey-border);
+      margin-bottom: 14px;
+    }
+    .ftab {
+      padding: 8px 16px;
+      font-size: 13px; font-weight: 500;
+      color: var(--grey-dark); cursor: pointer;
+      border-bottom: 2px solid transparent; margin-bottom: -2px;
+      transition: all 0.12s;
+    }
+    .ftab:hover { color: var(--navy); }
+    .ftab.active { color: var(--teal-dark); border-bottom-color: var(--teal-dark); font-weight: 700; }
+
+    .hub-table { background: white; border: 1px solid var(--grey-border); border-radius: 8px; overflow: hidden; }
+    .hub-thead {
+      display: grid;
+      grid-template-columns: 28px 1fr 145px 165px 85px;
+      padding: 9px 14px;
+      background: var(--grey-mid);
+      border-bottom: 1px solid var(--grey-border);
+      font-size: 11.5px; font-weight: 700; color: var(--grey-text);
+      text-transform: uppercase; letter-spacing: 0.04em;
+      gap: 0;
+    }
+    .hub-row {
+      display: grid;
+      grid-template-columns: 28px 1fr 145px 165px 85px;
+      padding: 11px 14px;
+      border-bottom: 1px solid var(--grey-border);
+      align-items: center;
+      gap: 0;
+      cursor: pointer;
+      transition: background 0.1s;
+    }
+    .hub-row:last-child { border-bottom: none; }
+    .hub-row:hover { background: #fafbfc; }
+    .hub-row.selected { background: #f0fdf9; }
+    .hub-row.hidden { display: none; }
+
+    .row-cb input { width: 14px; height: 14px; accent-color: var(--teal-dark); cursor: pointer; }
+    .row-name { font-size: 13px; font-weight: 500; color: var(--navy); padding-right: 8px; }
+    .type-badge {
+      font-size: 11px; font-weight: 600;
+      padding: 2px 8px; border-radius: 10px;
+      display: inline-flex; align-items: center; gap: 4px;
+    }
+    .type-shared   { background: var(--tag-pink-bg); color: var(--tag-pink-t); }
+    .type-specific { background: var(--tag-teal-bg); color: var(--tag-teal-t); }
+    .row-tags  { display: flex; gap: 4px; flex-wrap: wrap; }
+    .row-gbs   { font-size: 12px; color: var(--grey-text); }
+
+    /* ─── SIDE PANEL ──────────────────────────────── */
+    .overlay {
+      position: fixed; inset: 0;
+      background: rgba(15,43,70,0.18);
+      z-index: 100; display: none;
+    }
+    .overlay.open { display: block; }
+
+    .side-panel {
+      position: fixed;
+      top: 0; right: -440px; bottom: 0; width: 420px;
+      background: white;
+      box-shadow: -6px 0 28px rgba(0,0,0,0.12);
+      z-index: 101;
+      display: flex; flex-direction: column;
+      transition: right 0.24s cubic-bezier(.4,0,.2,1);
+    }
+    .side-panel.open { right: 0; }
+
+    .sp-head {
+      display: flex; align-items: center;
+      padding: 16px 18px;
+      border-bottom: 1px solid var(--grey-border);
+      gap: 10px;
+    }
+    .sp-title-input {
+      flex: 1; font-size: 17px; font-weight: 700;
+      color: var(--navy); border: none; outline: none;
+      background: transparent; font-family: inherit;
+    }
+    .sp-close {
+      color: #94a3b8; cursor: pointer; font-size: 20px;
+      padding: 0 4px; line-height: 1;
+    }
+    .sp-close:hover { color: var(--navy); }
+
+    .sp-body   { flex: 1; overflow-y: auto; padding: 18px; }
+    .sp-section { margin-bottom: 20px; }
+    .sp-sect-title { font-size: 11px; font-weight: 700; color: var(--grey-text); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 8px; }
+
+    .warn-banner {
+      display: none;
+      align-items: flex-start; gap: 8px;
+      padding: 10px 12px;
+      background: #fffbeb; border: 1px solid #fde68a; border-radius: 7px;
+      margin-bottom: 14px;
+    }
+    .warn-banner.show { display: flex; }
+    .warn-icon  { color: #d97706; font-size: 13px; flex-shrink: 0; margin-top: 1px; }
+    .warn-text  { font-size: 12.5px; color: #92400e; line-height: 1.45; }
+
+    .cb-row {
+      display: flex; align-items: center; gap: 9px;
+      padding: 7px 9px; border-radius: 6px; cursor: pointer;
+    }
+    .cb-row:hover { background: var(--grey-light); }
+    .cb-row input { width: 14px; height: 14px; accent-color: var(--teal-dark); cursor: pointer; }
+    .cb-label  { font-size: 13.5px; color: var(--navy); flex: 1; }
+    .add-tag-link {
+      display: inline-flex; align-items: center; gap: 5px;
+      font-size: 12.5px; color: var(--teal-dark); font-weight: 600;
+      cursor: pointer; padding: 6px 9px; margin-top: 2px;
+    }
+
+    .gb-item {
+      display: flex; align-items: center; gap: 9px;
+      padding: 8px 10px; border-radius: 7px;
+      border: 1px solid var(--grey-border); margin-bottom: 6px;
+      transition: opacity 0.2s, background 0.2s;
+    }
+    .gb-item.faded { opacity: 0.3; background: var(--grey-mid); }
+    .gb-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    .gb-dot-teal   { background: #0e7c7b; }
+    .gb-dot-purple { background: #7c3aed; }
+    .gb-dot-amber  { background: #d97706; }
+    .gb-name { font-size: 13px; color: var(--navy); flex: 1; font-weight: 500; }
+    .gb-via  { font-size: 11px; color: var(--grey-text); }
+    .gb-tick { color: #10b981; font-size: 13px; }
+
+    .sp-foot {
+      padding: 14px 18px;
+      border-top: 1px solid var(--grey-border);
+      display: flex; gap: 8px;
+    }
+    .btn-primary {
+      flex: 1; padding: 9px;
+      background: var(--teal-dark); color: white;
+      border: none; border-radius: 8px;
+      font-size: 13.5px; font-weight: 700; cursor: pointer;
+      font-family: inherit;
+    }
+    .btn-primary:hover { background: #0a6060; }
+    .btn-cancel {
+      padding: 9px 16px;
+      background: white; color: var(--grey-dark);
+      border: 1.5px solid var(--grey-border);
+      border-radius: 8px; font-size: 13.5px; font-weight: 500;
+      cursor: pointer; font-family: inherit;
+    }
+    .btn-cancel:hover { border-color: #94a3b8; }
+
+    /* ─── MAKE SHARED MODAL ───────────────────────── */
+    .modal-wrap {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.28);
+      z-index: 200; display: none;
+      align-items: center; justify-content: center;
+    }
+    .modal-wrap.open { display: flex; }
+    .modal {
+      background: white; border-radius: 12px;
+      width: 400px; overflow: hidden;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.18);
+    }
+    .modal-head { padding: 16px 18px; border-bottom: 1px solid var(--grey-border); }
+    .modal-title { font-size: 15px; font-weight: 700; color: var(--navy); }
+    .modal-body { padding: 16px 18px; }
+    .modal-body p { font-size: 13.5px; color: var(--grey-dark); margin-bottom: 14px; line-height: 1.5; }
+    .field-label { font-size: 11.5px; font-weight: 700; color: var(--grey-dark); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 5px; }
+    .field-input {
+      width: 100%; padding: 8px 11px;
+      border: 1.5px solid var(--grey-border); border-radius: 7px;
+      font-size: 13.5px; color: var(--navy); outline: none;
+      margin-bottom: 14px; font-family: inherit;
+    }
+    .field-input:focus { border-color: var(--teal); }
+    .modal-gb-list { display: flex; flex-direction: column; gap: 6px; margin-bottom: 4px; }
+    .modal-gb-row { display: flex; align-items: center; gap: 8px; font-size: 13.5px; color: var(--navy); }
+    .modal-foot { padding: 12px 18px; border-top: 1px solid var(--grey-border); display: flex; gap: 8px; justify-content: flex-end; }
+
+    /* ─── TOAST ───────────────────────────────────── */
+    .toast {
+      position: fixed; bottom: 22px; left: 50%;
+      transform: translateX(-50%) translateY(70px);
+      background: #1e293b; color: white;
+      padding: 11px 20px; border-radius: 8px;
+      font-size: 13px; font-weight: 500;
+      z-index: 400; transition: transform 0.28s ease;
+      box-shadow: 0 4px 18px rgba(0,0,0,0.22);
+      pointer-events: none;
+    }
+    .toast.show { transform: translateX(-50%) translateY(0); }
+
+    /* ─── PROTO BADGE ─────────────────────────────── */
+    .proto-badge {
+      position: fixed; top: 10px; right: 14px;
+      background: #fef3c7; border: 1px solid #fde68a;
+      color: #92400e; font-size: 10.5px; font-weight: 700;
+      padding: 3px 10px; border-radius: 20px; z-index: 50;
+    }
+
+    /* scrollbar */
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════ SIDEBAR ═══ -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <!-- Touch Stay house logo -->
+    <svg class="logo-icon" viewBox="0 0 32 32" fill="none">
+      <rect width="32" height="32" rx="8" fill="#0e7c7b"/>
+      <path d="M16 7.5L5.5 16.5H8V25H13V19.5H19V25H24V16.5H26.5L16 7.5Z" fill="white"/>
+    </svg>
+    <span class="logo-text">Touch Stay</span>
+  </div>
+
+  <nav class="sidebar-nav">
+    <div class="nav-item" onclick="goScreen('content')">
+      <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path d="M2 10.5a1.5 1.5 0 113 0v6a1.5 1.5 0 01-3 0v-6zM6 10.333a1 1 0 011.447-.894l.448.224A1 1 0 008.5 9.5V4.5a.5.5 0 01.5-.5h2a.5.5 0 01.5.5V10a1 1 0 001 1h1.5a1.5 1.5 0 110 3H9a1 1 0 01-1-1v-2.667a1 1 0 00-2 0v2.667a1 1 0 01-1 1H4a1 1 0 01-1-1v-2.667z"/></svg>
+      Overview
+    </div>
+    <div class="nav-item" onclick="goScreen('content')">
+      <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z"/></svg>
+      Touch Stay AI
+    </div>
+
+    <div class="section-label">Guidebook</div>
+
+    <div class="property-box">
+      <div class="property-thumb"></div>
+      <span class="property-name">Beach Retreat villa</span>
+      <span class="property-caret">▾</span>
+    </div>
+
+    <div class="nav-item" onclick="goScreen('content')">
+      <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z"/></svg>
+      Property info
+    </div>
+    <div class="nav-item active" id="nav-content" onclick="goScreen('content')">
+      <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 015.5 14c1.255 0 2.443.29 3.5.804V4.804zM11 4.804A7.968 7.968 0 0114.5 4c1.255 0 2.443.29 3.5.804v10a7.969 7.969 0 01-3.5-.804V4.804z"/></svg>
+      Content
+    </div>
+    <div class="nav-item" onclick="goScreen('content')">
+      <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4 2a2 2 0 00-2 2v11a3 3 0 106 0V4a2 2 0 00-2-2H4zm1 14a1 1 0 100-2 1 1 0 000 2zm5-1.757l4.9-4.9a2 2 0 000-2.828L13.485 5.1a2 2 0 00-2.828 0L10 5.757v8.486z"/></svg>
+      Appearance
+    </div>
+    <div class="nav-item" onclick="goScreen('content')">
+      <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z"/></svg>
+      Settings
+    </div>
+
+    <div class="section-label">CRM</div>
+
+    <div class="nav-item" onclick="goScreen('content')">
+      <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path d="M7 3a1 1 0 000 2h6a1 1 0 100-2H7zM4 7a1 1 0 011-1h10a1 1 0 110 2H5a1 1 0 01-1-1zM2 11a2 2 0 012-2h12a2 2 0 012 2v4a2 2 0 01-2 2H4a2 2 0 01-2-2v-4z"/></svg>
+      Properties
+      <span class="nav-badge">2</span>
+    </div>
+    <div class="nav-item" id="nav-hub" onclick="goScreen('hub')">
+      <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/><path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z"/></svg>
+      Shared content
+    </div>
+    <div class="nav-item" onclick="goScreen('content')">
+      <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path d="M2 5a2 2 0 012-2h7a2 2 0 012 2v4a2 2 0 01-2 2H9l-3 3v-3H4a2 2 0 01-2-2V5z"/></svg>
+      Messaging &amp; Chat
+    </div>
+    <div class="nav-item" onclick="goScreen('content')">
+      <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3z"/></svg>
+      Contacts
+    </div>
+    <div class="nav-item" onclick="goScreen('content')">
+      <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path d="M3 1a1 1 0 000 2h1.22l.305 1.222a.997.997 0 00.01.042l1.358 5.43-.893.892C3.74 11.846 4.632 14 6.414 14H15a1 1 0 000-2H6.414l1-1H14a1 1 0 00.894-.553l3-6A1 1 0 0017 3H6.28l-.31-1.243A1 1 0 005 1H3z"/></svg>
+      Store
+    </div>
+    <div class="nav-item" onclick="goScreen('content')">
+      <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z"/></svg>
+      Tasks management
+    </div>
+    <div class="nav-item" onclick="goScreen('content')">
+      <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M12.316 3.051a1 1 0 01.633 1.265l-4 12a1 1 0 11-1.898-.632l4-12a1 1 0 011.265-.633z"/></svg>
+      Integrations
+    </div>
+  </nav>
+
+  <div class="sidebar-footer">
+    <div class="plan-row">
+      <span class="plan-name">Starter</span>
+      <span class="plan-link">Upgrade now</span>
+    </div>
+    <div class="plan-sub">You plan</div>
+    <div class="user-row">
+      <div class="user-avatar">JC</div>
+      <div>
+        <div class="user-name">Short term rental</div>
+        <div class="user-type">Jane Cartwright</div>
+      </div>
+      <span style="color:#94a3b8;cursor:pointer;margin-left:auto">⋮</span>
+    </div>
+  </div>
+</aside>
+
+<!-- ═══════════════════════════════════════════════ MAIN ════════ -->
+<div class="main-wrapper">
+
+  <!-- ══════════ SCREEN: GUIDEBOOK CONTENT TAB ══════════ -->
+  <div id="screen-content" class="screen active">
+    <div class="content-area">
+      <h1 class="page-title">Content</h1>
+
+      <!-- Template banner -->
+      <div class="tpl-banner">
+        <svg class="tpl-banner-icon" width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M4 5a1 1 0 011-1h4v2H5v12h4v2H5a1 1 0 01-1-1V5zm10 0h4a1 1 0 011 1v14a1 1 0 01-1 1h-4v-2h4V6h-4V4zm-5 5l4 3-4 3V10z"/>
+        </svg>
+        <div>
+          <div class="tpl-title">Using Content template: My guidebook template</div>
+          <div class="tpl-sub">To change the content you need to update the template.<br>This will change all the guidebooks with this template.</div>
+          <div class="tpl-actions">
+            <button class="btn-ghost">
+              <svg width="12" height="12" viewBox="0 0 20 20" fill="currentColor"><path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"/></svg>
+              Edit template
+            </button>
+            <button class="btn-ghost">
+              <svg width="12" height="12" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"/></svg>
+              Unlink content
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Category list -->
+      <div class="cat-list">
+
+        <!-- ── Welcome (starts expanded) ── -->
+        <div class="cat-card">
+          <div class="cat-row" onclick="toggleCat(this)">
+            <div class="drag-dots disabled" title="Reorder in Content Hub">
+              <div class="d"></div><div class="d"></div><div class="d"></div>
+              <div class="d"></div><div class="d"></div><div class="d"></div>
+            </div>
+            <span class="cat-icon">👋</span>
+            <span class="cat-name">Welcome</span>
+            <span class="chevron open">▾</span>
+            <span class="kebab" onclick="event.stopPropagation()">⋮</span>
+          </div>
+          <div class="cat-body open">
+
+            <!-- subcategory: Welcome -->
+            <div class="subcat">
+              <div class="subcat-row" onclick="toggleSubcat(this)">
+                <div class="drag-dots"><div class="d"></div><div class="d"></div><div class="d"></div><div class="d"></div><div class="d"></div><div class="d"></div></div>
+                <span class="subcat-arrow">↳</span>
+                <span class="subcat-name">Welcome</span>
+                <div class="subcat-acts">
+                  <span class="icon-btn" title="Analytics">
+                    <svg width="14" height="14" viewBox="0 0 20 20" fill="currentColor"><path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zm6-4a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zm6-3a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z"/></svg>
+                  </span>
+                  <span class="icon-btn">▲</span>
+                  <span class="icon-btn" onclick="event.stopPropagation()">⋮</span>
+                </div>
+              </div>
+              <div class="topic-list">
+                <!-- topic 1 -->
+                <div class="topic-row">
+                  <div class="drag-dots"><div class="d"></div><div class="d"></div><div class="d"></div><div class="d"></div><div class="d"></div><div class="d"></div></div>
+                  <div class="topic-thumb">🍱</div>
+                  <span class="topic-name">Welcome</span>
+                  <div class="topic-acts">
+                    <span class="tag tag-gb">Beach Retreat Villa</span>
+                    <span class="icon-btn"><svg width="13" height="13" viewBox="0 0 20 20" fill="currentColor"><path d="M8 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z"/><path d="M6 3a2 2 0 00-2 2v11a2 2 0 002 2h8a2 2 0 002-2V5a2 2 0 00-2-2 3 3 0 01-3 3H9a3 3 0 01-3-3z"/></svg></span>
+                    <span class="icon-btn"><svg width="13" height="13" viewBox="0 0 20 20" fill="currentColor"><path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zm6-4a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zm6-3a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z"/></svg></span>
+                    <span class="icon-btn">⋮</span>
+                  </div>
+                </div>
+                <!-- topic 2: shared -->
+                <div class="topic-row">
+                  <div class="drag-dots"><div class="d"></div><div class="d"></div><div class="d"></div><div class="d"></div><div class="d"></div><div class="d"></div></div>
+                  <div class="topic-thumb" style="background:linear-gradient(135deg,#bfdbfe,#3b82f6)">🌤</div>
+                  <span class="topic-name">Weather in {{city}}</span>
+                  <div class="topic-acts">
+                    <span class="tag tag-wdg">Weather widget</span>
+                    <span class="tag tag-sh">kitchen hardware</span>
+                    <span class="icon-btn"><svg width="13" height="13" viewBox="0 0 20 20" fill="currentColor"><path d="M8 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z"/><path d="M6 3a2 2 0 00-2 2v11a2 2 0 002 2h8a2 2 0 002-2V5a2 2 0 00-2-2 3 3 0 01-3 3H9a3 3 0 01-3-3z"/></svg></span>
+                    <span class="icon-btn">⋮</span>
+                  </div>
+                </div>
+              </div>
+              <div class="add-row">
+                <div class="add-link">
+                  <svg width="13" height="13" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"/></svg>
+                  Add Topic
+                </div>
+              </div>
+            </div>
+
+            <!-- subcategory: About us (collapsed) -->
+            <div class="subcat">
+              <div class="subcat-row" onclick="toggleSubcat(this)">
+                <div class="drag-dots"><div class="d"></div><div class="d"></div><div class="d"></div><div class="d"></div><div class="d"></div><div class="d"></div></div>
+                <span class="subcat-arrow">↳</span>
+                <span class="subcat-name">About us</span>
+                <div class="subcat-acts">
+                  <span class="icon-btn"><svg width="14" height="14" viewBox="0 0 20 20" fill="currentColor"><path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zm6-4a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zm6-3a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z"/></svg></span>
+                  <span class="icon-btn">▾</span>
+                  <span class="icon-btn" onclick="event.stopPropagation()">⋮</span>
+                </div>
+              </div>
+              <!-- hidden topic list -->
+              <div class="topic-list" style="display:none">
+                <div class="topic-row">
+                  <div class="drag-dots"><div class="d"></div><div class="d"></div><div class="d"></div><div class="d"></div><div class="d"></div><div class="d"></div></div>
+                  <div class="topic-thumb" style="background:linear-gradient(135deg,#d1fae5,#059669)">🏡</div>
+                  <span class="topic-name">About us</span>
+                  <div class="topic-acts">
+                    <span class="tag tag-gb">Beach Retreat Villa</span>
+                    <span class="icon-btn">⋮</span>
+                  </div>
+                </div>
+              </div>
+              <div class="add-row" style="display:none">
+                <div class="add-link">
+                  <svg width="13" height="13" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"/></svg>
+                  Add Topic
+                </div>
+              </div>
+            </div>
+
+            <!-- add subcategory -->
+            <div class="add-row subcat-add">
+              <div class="add-link">
+                <svg width="13" height="13" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"/></svg>
+                Add Subcategory
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── Some list ── -->
+        <div class="cat-card">
+          <div class="cat-row" onclick="toggleCat(this)">
+            <div class="drag-dots disabled" title="Reorder in Content Hub"><div class="d"></div><div class="d"></div><div class="d"></div><div class="d"></div><div class="d"></div><div class="d"></div></div>
+            <span class="cat-icon">☰</span>
+            <span class="cat-name">Some list</span>
+            <span class="chevron">▾</span>
+            <span class="kebab" onclick="event.stopPropagation()">⋮</span>
+          </div>
+          <div class="cat-body"></div>
+        </div>
+
+        <!-- ── Making a difference ── -->
+        <div class="cat-card">
+          <div class="cat-row" onclick="toggleCat(this)">
+            <div class="drag-dots disabled" title="Reorder in Content Hub"><div class="d"></div><div class="d"></div><div class="d"></div><div class="d"></div><div class="d"></div><div class="d"></div></div>
+            <span class="cat-icon">❤️</span>
+            <span class="cat-name">Making a difference</span>
+            <span class="chevron">▾</span>
+            <span class="kebab" onclick="event.stopPropagation()">⋮</span>
+          </div>
+          <div class="cat-body"></div>
+        </div>
+
+        <!-- ── Arrival information ── -->
+        <div class="cat-card">
+          <div class="cat-row" onclick="toggleCat(this)">
+            <div class="drag-dots disabled" title="Reorder in Content Hub"><div class="d"></div><div class="d"></div><div class="d"></div><div class="d"></div><div class="d"></div><div class="d"></div></div>
+            <span class="cat-icon">🔑</span>
+            <span class="cat-name">Arrival information</span>
+            <span class="chevron">▾</span>
+            <span class="kebab" onclick="event.stopPropagation()">⋮</span>
+          </div>
+          <div class="cat-body"></div>
+        </div>
+
+        <!-- ── About the home ── -->
+        <div class="cat-card">
+          <div class="cat-row" onclick="toggleCat(this)">
+            <div class="drag-dots disabled" title="Reorder in Content Hub"><div class="d"></div><div class="d"></div><div class="d"></div><div class="d"></div><div class="d"></div><div class="d"></div></div>
+            <span class="cat-icon">🏠</span>
+            <span class="cat-name">About the home</span>
+            <span class="chevron">▾</span>
+            <span class="kebab" onclick="event.stopPropagation()">⋮</span>
+          </div>
+          <div class="cat-body"></div>
+        </div>
+
+        <!-- ── Safety information & rules ── -->
+        <div class="cat-card">
+          <div class="cat-row" onclick="toggleCat(this)">
+            <div class="drag-dots disabled" title="Reorder in Content Hub"><div class="d"></div><div class="d"></div><div class="d"></div><div class="d"></div><div class="d"></div><div class="d"></div></div>
+            <span class="cat-icon">📋</span>
+            <span class="cat-name">Safety information &amp; rules</span>
+            <span class="chevron">▾</span>
+            <span class="kebab" onclick="event.stopPropagation()">⋮</span>
+          </div>
+          <div class="cat-body"></div>
+        </div>
+
+        <!-- ── Practical area information ── -->
+        <div class="cat-card">
+          <div class="cat-row" onclick="toggleCat(this)">
+            <div class="drag-dots disabled" title="Reorder in Content Hub"><div class="d"></div><div class="d"></div><div class="d"></div><div class="d"></div><div class="d"></div><div class="d"></div></div>
+            <span class="cat-icon">🗺️</span>
+            <span class="cat-name">Practical area inforation</span>
+            <span class="chevron">▾</span>
+            <span class="kebab" onclick="event.stopPropagation()">⋮</span>
+          </div>
+          <div class="cat-body"></div>
+        </div>
+
+        <!-- ── Activities guide ── -->
+        <div class="cat-card">
+          <div class="cat-row" onclick="toggleCat(this)">
+            <div class="drag-dots disabled" title="Reorder in Content Hub"><div class="d"></div><div class="d"></div><div class="d"></div><div class="d"></div><div class="d"></div><div class="d"></div></div>
+            <span class="cat-icon">🎯</span>
+            <span class="cat-name">Activities guide</span>
+            <span class="chevron">▾</span>
+            <span class="kebab" onclick="event.stopPropagation()">⋮</span>
+          </div>
+          <div class="cat-body"></div>
+        </div>
+
+        <!-- ── Dining & drinks ── -->
+        <div class="cat-card">
+          <div class="cat-row" onclick="toggleCat(this)">
+            <div class="drag-dots disabled" title="Reorder in Content Hub"><div class="d"></div><div class="d"></div><div class="d"></div><div class="d"></div><div class="d"></div><div class="d"></div></div>
+            <span class="cat-icon">🍽️</span>
+            <span class="cat-name">Dining &amp; drinks</span>
+            <span class="chevron">▾</span>
+            <span class="kebab" onclick="event.stopPropagation()">⋮</span>
+          </div>
+          <div class="cat-body"></div>
+        </div>
+
+      </div><!-- /cat-list -->
+
+      <!-- Shared content tray -->
+      <div class="tray">
+        <div class="tray-top">
+          <span class="tray-title">
+            <svg width="15" height="15" viewBox="0 0 20 20" fill="#64748b"><path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z"/></svg>
+            Shared content
+          </span>
+          <div class="tray-search">
+            <span class="tray-search-icon"><svg width="12" height="12" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"/></svg></span>
+            <input type="text" placeholder="Search for a topic...">
+          </div>
+          <span class="tray-manage" onclick="goScreen('hub')">Manage shared content</span>
+        </div>
+        <div class="tray-chips">
+          <div class="chip">
+            <div class="chip-thumb" style="background:linear-gradient(135deg,#e2e8f0,#94a3b8)"></div>
+            <div><div class="chip-label">Some content</div></div>
+          </div>
+          <div class="chip">
+            <div class="chip-thumb" style="background:linear-gradient(135deg,#fde68a,#f59e0b)"></div>
+            <div><div class="chip-label">Welcome</div></div>
+          </div>
+          <div class="chip">
+            <div class="chip-thumb" style="background:linear-gradient(135deg,#c7d2fe,#818cf8)"></div>
+            <div><div class="chip-label">Serving Breakfa...</div></div>
+          </div>
+          <div class="chip">
+            <div class="chip-thumb" style="background:linear-gradient(135deg,#bfdbfe,#3b82f6)"></div>
+            <div>
+              <div class="chip-label">Weath...</div>
+              <span class="tag tag-wdg" style="font-size:9px;padding:1px 5px">Weather widget</span>
+            </div>
+          </div>
+          <div class="chip already" title="Already in this guidebook">
+            <div class="chip-thumb" style="background:linear-gradient(135deg,#d1fae5,#10b981)"></div>
+            <div>
+              <div class="chip-label">Wi-Fi Setup</div>
+              <div class="chip-sub">Already added</div>
+            </div>
+          </div>
+          <div class="chip">
+            <div class="chip-thumb" style="background:linear-gradient(135deg,#fce7f3,#ec4899)"></div>
+            <div><div class="chip-label">House rules</div></div>
+          </div>
+        </div>
+        <div class="tray-footer">
+          <button class="btn-add-all" onclick="toast('3 topics added; 2 already exist in this guidebook')">+ Add all 5 topics</button>
+        </div>
+      </div>
+
+    </div><!-- /content-area -->
+
+    <!-- Right preview panel -->
+    <div class="preview-panel">
+      <div class="phone-wrap">
+        <div class="phone-bar">
+          <div class="phone-avatar-sm"></div>
+          <div style="margin-left:6px;display:flex;gap:9px">
+            <svg width="14" height="14" fill="white" viewBox="0 0 20 20"><path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z"/></svg>
+            <svg width="14" height="14" fill="white" viewBox="0 0 20 20"><path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z"/></svg>
+            <svg width="14" height="14" fill="white" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10c0 3.866-3.582 7-8 7a8.841 8.841 0 01-4.083-.98L2 17l1.338-3.123C2.493 12.767 2 11.434 2 10c0-3.866 3.582-7 8-7s8 3.134 8 7z"/></svg>
+          </div>
+          <div class="phone-bar-icons">
+            <svg width="13" height="13" fill="white" viewBox="0 0 20 20"><path d="M15 8a3 3 0 10-2.977-2.63l-4.94 2.47a3 3 0 100 4.319l4.94 2.47a3 3 0 10.895-1.789l-4.94-2.47a3.027 3.027 0 000-.74l4.94-2.47C13.456 7.68 14.19 8 15 8z"/></svg>
+            <svg width="13" height="13" fill="white" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z"/></svg>
+          </div>
+        </div>
+        <div style="padding:9px 11px;border-bottom:1px solid #f1f5f9">
+          <div style="font-size:13px;font-weight:700;color:#1e293b">Welcome</div>
+        </div>
+        <div class="phone-body">
+          <div class="phone-section">
+            <div class="phone-section-head">Welcome
+              <svg width="11" height="11" viewBox="0 0 20 20" fill="#94a3b8"><path fill-rule="evenodd" d="M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z"/></svg>
+            </div>
+            <div class="phone-img">🍱</div>
+            <div class="phone-text">We are located in a friendly and welcoming community and, although this is a holiday destination, it's home to other people.</div>
+            <div class="phone-helpful">Did you find this helpful? 👍 Yes  👎 No</div>
+          </div>
+          <div class="phone-section">
+            <div class="phone-section-head">Weather in Wester Cape
+              <div style="display:flex;gap:6px">
+                <svg width="11" height="11" viewBox="0 0 20 20" fill="#94a3b8"><path d="M15 8a3 3 0 10-2.977-2.63l-4.94 2.47a3 3 0 100 4.319l4.94 2.47a3 3 0 10.895-1.789l-4.94-2.47a3.027 3.027 0 000-.74l4.94-2.47C13.456 7.68 14.19 8 15 8z"/></svg>
+                <svg width="11" height="11" viewBox="0 0 20 20" fill="#94a3b8"><path fill-rule="evenodd" d="M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z"/></svg>
+              </div>
+            </div>
+            <div class="phone-text">Weather is fine, you bet it!</div>
+            <div class="phone-helpful">Did you find this helpful? 👍 Yes</div>
+          </div>
+        </div>
+        <div class="phone-nav">
+          <div class="phone-nav-btn active">
+            <svg width="14" height="14" fill="white" viewBox="0 0 20 20"><path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/></svg>
+            <span class="phone-nav-label">HOME</span>
+          </div>
+          <div class="phone-nav-btn">
+            <svg width="14" height="14" fill="white" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"/></svg>
+            <span class="phone-nav-label">INFO</span>
+          </div>
+          <div class="phone-nav-btn">
+            <svg width="14" height="14" fill="white" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z"/></svg>
+            <span class="phone-nav-label">MAP</span>
+          </div>
+        </div>
+      </div><!-- /phone-wrap -->
+
+      <div class="preview-qr-row">
+        <div class="qr-box">
+          <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+            <rect x="1" y="1" width="13" height="13" rx="1" stroke="#94a3b8" stroke-width="1.5" fill="none"/>
+            <rect x="4" y="4" width="7" height="7" fill="#94a3b8"/>
+            <rect x="18" y="1" width="13" height="13" rx="1" stroke="#94a3b8" stroke-width="1.5" fill="none"/>
+            <rect x="21" y="4" width="7" height="7" fill="#94a3b8"/>
+            <rect x="1" y="18" width="13" height="13" rx="1" stroke="#94a3b8" stroke-width="1.5" fill="none"/>
+            <rect x="4" y="21" width="7" height="7" fill="#94a3b8"/>
+            <rect x="18" y="18" width="4" height="4" fill="#94a3b8"/>
+            <rect x="24" y="18" width="4" height="4" fill="#94a3b8"/>
+            <rect x="18" y="24" width="4" height="4" fill="#94a3b8"/>
+            <rect x="24" y="24" width="7" height="7" fill="#94a3b8"/>
+          </svg>
+        </div>
+        <div class="qr-label">Scan to preview on your phone</div>
+      </div>
+      <button class="btn-share-link">
+        <svg width="13" height="13" fill="white" viewBox="0 0 20 20"><path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/><path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5z"/></svg>
+        Quick share link
+      </button>
+    </div><!-- /preview-panel -->
+  </div><!-- /screen-content -->
+
+
+  <!-- ══════════ SCREEN: CONTENT HUB ══════════ -->
+  <div id="screen-hub" class="screen">
+    <div class="content-area">
+      <h1 class="page-title">Shared content</h1>
+
+      <div class="search-row">
+        <div class="search-wrap">
+          <span class="search-icon"><svg width="15" height="15" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"/></svg></span>
+          <input type="text" placeholder="Search..." id="hub-q" oninput="filterHub()">
+        </div>
+        <button class="view-btn" title="Grid view">
+          <svg width="15" height="15" viewBox="0 0 20 20" fill="currentColor"><path d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM5 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5zM11 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5zM11 13a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/></svg>
+        </button>
+      </div>
+
+      <!-- Bulk bar -->
+      <div class="bulk-bar" id="bulk-bar">
+        <span class="bulk-count" id="bulk-count">0 selected</span>
+        <button class="btn-make-shared" onclick="openMakeShared()">Make Shared</button>
+      </div>
+
+      <!-- Filter tabs -->
+      <div class="filter-tabs">
+        <div class="ftab active" onclick="setFilter('all',this)">All Content</div>
+        <div class="ftab" onclick="setFilter('shared',this)">Shared Content</div>
+        <div class="ftab" onclick="setFilter('specific',this)">Guidebook-Specific</div>
+      </div>
+
+      <!-- Table -->
+      <div class="hub-table">
+        <div class="hub-thead">
+          <div></div>
+          <div>Topic</div>
+          <div>Type</div>
+          <div>Tags</div>
+          <div>Guidebooks</div>
+        </div>
+
+        <div class="hub-row" data-type="shared" onclick="openPanel('Welcome')">
+          <div class="row-cb" onclick="event.stopPropagation()"><input type="checkbox" onchange="selChange()"></div>
+          <div class="row-name">Welcome</div>
+          <div><span class="type-badge type-shared">⊕ Shared</span></div>
+          <div class="row-tags"><span class="tag tag-sh">kitchen hardware</span></div>
+          <div class="row-gbs">3 guidebooks</div>
+        </div>
+
+        <div class="hub-row" data-type="shared" onclick="openPanel('Weather in {{city}}')">
+          <div class="row-cb" onclick="event.stopPropagation()"><input type="checkbox" onchange="selChange()"></div>
+          <div class="row-name">Weather in {{city}}</div>
+          <div><span class="type-badge type-shared">⊕ Shared</span></div>
+          <div class="row-tags"><span class="tag tag-sh">kitchen hardware</span><span class="tag tag-wdg">Weather widget</span></div>
+          <div class="row-gbs">3 guidebooks</div>
+        </div>
+
+        <div class="hub-row" data-type="shared" onclick="openPanel('Wi-Fi Setup')">
+          <div class="row-cb" onclick="event.stopPropagation()"><input type="checkbox" onchange="selChange()"></div>
+          <div class="row-name">Wi-Fi Setup</div>
+          <div><span class="type-badge type-shared">⊕ Shared</span></div>
+          <div class="row-tags"><span class="tag tag-sh">kitchen hardware</span></div>
+          <div class="row-gbs">2 guidebooks</div>
+        </div>
+
+        <div class="hub-row" data-type="shared" onclick="openPanel('Breakfast Guide')">
+          <div class="row-cb" onclick="event.stopPropagation()"><input type="checkbox" onchange="selChange()"></div>
+          <div class="row-name">Breakfast Guide</div>
+          <div><span class="type-badge type-shared">⊕ Shared</span></div>
+          <div class="row-tags"><span class="tag tag-sh">beach property rules</span></div>
+          <div class="row-gbs">3 guidebooks</div>
+        </div>
+
+        <div class="hub-row" data-type="specific" onclick="openPanel('Arrival Guide')">
+          <div class="row-cb" onclick="event.stopPropagation()"><input type="checkbox" onchange="selChange()"></div>
+          <div class="row-name">Arrival Guide</div>
+          <div><span class="type-badge type-specific">◎ Guidebook</span></div>
+          <div class="row-tags"><span class="tag tag-gb">Beach Retreat Villa</span></div>
+          <div class="row-gbs">1 guidebook</div>
+        </div>
+
+        <div class="hub-row" data-type="specific" onclick="openPanel('House Rules')">
+          <div class="row-cb" onclick="event.stopPropagation()"><input type="checkbox" onchange="selChange()"></div>
+          <div class="row-name">House Rules</div>
+          <div><span class="type-badge type-specific">◎ Guidebook</span></div>
+          <div class="row-tags"><span class="tag tag-gb">Beach Retreat Villa</span></div>
+          <div class="row-gbs">1 guidebook</div>
+        </div>
+
+        <div class="hub-row" data-type="specific" onclick="openPanel('Parking Info')">
+          <div class="row-cb" onclick="event.stopPropagation()"><input type="checkbox" onchange="selChange()"></div>
+          <div class="row-name">Parking Info</div>
+          <div><span class="type-badge type-specific">◎ Guidebook</span></div>
+          <div class="row-tags"><span class="tag tag-gb">Mountain Lodge</span></div>
+          <div class="row-gbs">1 guidebook</div>
+        </div>
+
+        <div class="hub-row" data-type="specific" onclick="openPanel('Local Attractions')">
+          <div class="row-cb" onclick="event.stopPropagation()"><input type="checkbox" onchange="selChange()"></div>
+          <div class="row-name">Local Attractions</div>
+          <div><span class="type-badge type-specific">◎ Guidebook</span></div>
+          <div class="row-tags"><span class="tag tag-gb">City Apartment</span></div>
+          <div class="row-gbs">1 guidebook</div>
+        </div>
+
+      </div><!-- /hub-table -->
+    </div><!-- /content-area hub -->
+  </div><!-- /screen-hub -->
+
+</div><!-- /main-wrapper -->
+
+<!-- ═══════════════════════════════════════════ TAG EDITOR PANEL ═══ -->
+<div class="overlay" id="overlay" onclick="closePanel()"></div>
+<div class="side-panel" id="side-panel">
+  <div class="sp-head">
+    <input class="sp-title-input" id="sp-title" value="Wi-Fi Setup">
+    <span class="sp-close" onclick="closePanel()">×</span>
+  </div>
+  <div class="sp-body">
+
+    <!-- Warning -->
+    <div class="warn-banner" id="warn-banner">
+      <span class="warn-icon">⚠</span>
+      <div class="warn-text">Unchecking tags will remove this content from <strong id="warn-count">2</strong> guidebook(s). The relationship is preserved — you can reactivate later.</div>
+    </div>
+
+    <!-- Tags -->
+    <div class="sp-section">
+      <div class="sp-sect-title">Tags</div>
+      <label class="cb-row">
+        <input type="checkbox" id="ck-kitchen" checked onchange="updateGBList()">
+        <span class="cb-label"><span class="tag tag-sh">kitchen hardware</span></span>
+      </label>
+      <label class="cb-row">
+        <input type="checkbox" id="ck-beach" checked onchange="updateGBList()">
+        <span class="cb-label"><span class="tag tag-gb">Beach Retreat Villa</span></span>
+      </label>
+      <label class="cb-row">
+        <input type="checkbox" id="ck-mountain" onchange="updateGBList()">
+        <span class="cb-label"><span class="tag" style="background:#ede9fe;color:#5b21b6">Mountain Lodge</span></span>
+      </label>
+      <div class="add-tag-link">
+        <svg width="12" height="12" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"/></svg>
+        Add new tag
+      </div>
+    </div>
+
+    <!-- Guidebooks -->
+    <div class="sp-section">
+      <div class="sp-sect-title">Guidebooks Receiving This Content</div>
+      <div class="gb-item" id="gb-beach">
+        <div class="gb-dot gb-dot-teal"></div>
+        <span class="gb-name">Beach Retreat Villa</span>
+        <span class="gb-via">via Beach Retreat Villa</span>
+        <span class="gb-tick">✓</span>
+      </div>
+      <div class="gb-item" id="gb-mountain">
+        <div class="gb-dot gb-dot-purple"></div>
+        <span class="gb-name">Mountain Lodge</span>
+        <span class="gb-via">via kitchen hardware</span>
+        <span class="gb-tick">✓</span>
+      </div>
+      <div class="gb-item" id="gb-city">
+        <div class="gb-dot gb-dot-amber"></div>
+        <span class="gb-name">City Apartment</span>
+        <span class="gb-via">via kitchen hardware</span>
+        <span class="gb-tick">✓</span>
+      </div>
+    </div>
+
+  </div>
+  <div class="sp-foot">
+    <button class="btn-cancel" onclick="closePanel()">Cancel</button>
+    <button class="btn-primary" onclick="savePanel()">Save changes</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════ MAKE SHARED MODAL ═══ -->
+<div class="modal-wrap" id="make-shared-modal">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-title">Make Content Shared</div>
+    </div>
+    <div class="modal-body">
+      <p>Assign a shared tag and select which guidebooks should receive this content.</p>
+      <div class="field-label">Tag name</div>
+      <input class="field-input" id="new-tag" type="text" placeholder="e.g. kitchen hardware, london attractions…">
+      <div class="field-label">Assign to guidebooks</div>
+      <div class="modal-gb-list">
+        <div class="modal-gb-row"><input type="checkbox" id="m1" checked><label for="m1">&nbsp;Beach Retreat Villa</label></div>
+        <div class="modal-gb-row"><input type="checkbox" id="m2"><label for="m2">&nbsp;Mountain Lodge</label></div>
+        <div class="modal-gb-row"><input type="checkbox" id="m3"><label for="m3">&nbsp;City Apartment</label></div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn-cancel" onclick="closeMakeShared()">Cancel</button>
+      <button class="btn-primary" style="flex:none;padding:8px 18px" onclick="confirmMakeShared()">Make Shared</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════ TOAST ════════ -->
+<div class="toast" id="toast-el"></div>
+
+<!-- ═══════════════════════════════════════════════ BADGE ════════ -->
+<div class="proto-badge">Prototype — v0.1</div>
+
+<script>
+  /* ── SCREEN NAVIGATION ── */
+  function goScreen(name) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById('screen-' + name).classList.add('active');
+    document.querySelectorAll('.nav-item[id^="nav-"]').forEach(n => n.classList.remove('active'));
+    var el = document.getElementById('nav-' + name);
+    if (el) el.classList.add('active');
+  }
+
+  /* ── CATEGORY EXPAND / COLLAPSE ── */
+  function toggleCat(row) {
+    var body    = row.nextElementSibling;
+    var chevron = row.querySelector('.chevron');
+    var isOpen  = body.classList.contains('open');
+    body.classList.toggle('open', !isOpen);
+    chevron.classList.toggle('open', !isOpen);
+  }
+
+  /* ── SUBCATEGORY EXPAND / COLLAPSE ── */
+  function toggleSubcat(row) {
+    var next = row.nextElementSibling; // topic-list
+    var addRow = next ? next.nextElementSibling : null; // add-row
+    var open = next && next.style.display !== 'none';
+    if (next && next.classList.contains('topic-list')) {
+      next.style.display = open ? 'none' : 'flex';
+      next.style.flexDirection = 'column';
+    }
+    if (addRow && addRow.classList.contains('add-row')) {
+      addRow.style.display = open ? 'none' : '';
+    }
+  }
+
+  /* ── TAG EDITOR PANEL ── */
+  function openPanel(name) {
+    document.getElementById('sp-title').value = name;
+    // Reset to default state
+    document.getElementById('ck-kitchen').checked = true;
+    document.getElementById('ck-beach').checked   = true;
+    document.getElementById('ck-mountain').checked = false;
+    updateGBList();
+    document.getElementById('overlay').classList.add('open');
+    document.getElementById('side-panel').classList.add('open');
+  }
+
+  function closePanel() {
+    document.getElementById('overlay').classList.remove('open');
+    document.getElementById('side-panel').classList.remove('open');
+    document.getElementById('warn-banner').classList.remove('show');
+  }
+
+  function updateGBList() {
+    var kitchen  = document.getElementById('ck-kitchen').checked;
+    var beach    = document.getElementById('ck-beach').checked;
+    // mountain tag not assigned to any gb by default
+    var beachActive    = beach || kitchen;
+    var mountainActive = kitchen;
+    var cityActive     = kitchen;
+
+    document.getElementById('gb-beach').classList.toggle('faded',    !beachActive);
+    document.getElementById('gb-mountain').classList.toggle('faded', !mountainActive);
+    document.getElementById('gb-city').classList.toggle('faded',     !cityActive);
+
+    var removed = [!beachActive, !mountainActive, !cityActive].filter(Boolean).length;
+    var wb = document.getElementById('warn-banner');
+    if (removed > 0) {
+      wb.classList.add('show');
+      document.getElementById('warn-count').textContent = removed;
+    } else {
+      wb.classList.remove('show');
+    }
+  }
+
+  function savePanel() {
+    closePanel();
+    toast('Changes saved successfully');
+  }
+
+  /* ── HUB FILTER TABS ── */
+  var currentFilter = 'all';
+
+  function setFilter(f, tab) {
+    currentFilter = f;
+    document.querySelectorAll('.ftab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    filterHub();
+  }
+
+  function filterHub() {
+    var q = document.getElementById('hub-q').value.toLowerCase();
+    document.querySelectorAll('.hub-row').forEach(function(row) {
+      var typeMatch = currentFilter === 'all' || row.dataset.type === currentFilter;
+      var nameMatch = !q || row.querySelector('.row-name').textContent.toLowerCase().includes(q);
+      row.classList.toggle('hidden', !(typeMatch && nameMatch));
+    });
+  }
+
+  /* ── SELECTION / BULK ── */
+  function selChange() {
+    var checked = document.querySelectorAll('.hub-row input:checked');
+    var bar = document.getElementById('bulk-bar');
+    document.querySelectorAll('.hub-row').forEach(function(r) {
+      r.classList.toggle('selected', r.querySelector('input') && r.querySelector('input').checked);
+    });
+    if (checked.length > 0) {
+      bar.classList.add('show');
+      document.getElementById('bulk-count').textContent = checked.length + ' selected';
+    } else {
+      bar.classList.remove('show');
+    }
+  }
+
+  /* ── MAKE SHARED MODAL ── */
+  function openMakeShared() {
+    document.getElementById('make-shared-modal').classList.add('open');
+  }
+  function closeMakeShared() {
+    document.getElementById('make-shared-modal').classList.remove('open');
+  }
+  function confirmMakeShared() {
+    var tag = document.getElementById('new-tag').value.trim() || 'new-tag';
+    closeMakeShared();
+    document.querySelectorAll('.hub-row input').forEach(function(cb) { cb.checked = false; });
+    selChange();
+    toast('Content is now shared with tag "' + tag + '"');
+  }
+
+  /* ── TOAST ── */
+  function toast(msg) {
+    var el = document.getElementById('toast-el');
+    el.textContent = msg;
+    el.classList.add('show');
+    clearTimeout(el._t);
+    el._t = setTimeout(function() { el.classList.remove('show'); }, 3200);
+  }
+</script>
+</body>
+</html>
