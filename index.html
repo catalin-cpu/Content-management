@@ -241,50 +241,25 @@
     }
     .btn-ghost:hover { border-color: #94a3b8; }
 
-    /* ─── HUB LAYOUT ─────────────────────────────── */
-    .hub-layout {
-      display: flex;
-      gap: 20px;
-      align-items: flex-start;
-      flex-wrap: wrap;
-    }
-    .hub-main  { flex: 1; min-width: 320px; }
-    .hub-aside {
-      width: 240px;
-      min-width: 220px;
-      display: flex;
-      flex-direction: column;
+    /* ─── HUB COLUMN HEADER ──────────────────────── */
+    /* shared column definition: thumb | name | tags | guidebooks */
+    .col-header {
+      display: grid;
+      grid-template-columns: 30px 1fr 180px 1.5fr;
       gap: 12px;
+      padding: 7px 13px 7px 50px;
+      background: #f8fafc;
+      border-bottom: 1px solid var(--grey-border);
+      border-radius: 8px 8px 0 0;
     }
-    .hub-aside-card {
-      background: white;
-      border: 1px solid var(--grey-border);
-      border-radius: 10px;
-      padding: 14px 16px;
-    }
-    .hub-aside-title {
+    .col-header span {
       font-size: 10.5px;
       font-weight: 700;
       color: #94a3b8;
       text-transform: uppercase;
       letter-spacing: 0.06em;
-      margin-bottom: 10px;
     }
-    .hub-stat-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 5px 0;
-      border-bottom: 1px solid var(--grey-border);
-      font-size: 12.5px;
-    }
-    .hub-stat-row:last-child { border-bottom: none; }
-    .hub-stat-label { color: var(--grey-dark); }
-    .hub-stat-val   { font-weight: 700; color: var(--navy); }
-    .hub-tag-legend { display: flex; flex-direction: column; gap: 7px; }
-    .hub-tag-legend-item {
-      display: flex; align-items: center; gap: 8px;
-    }
+    .col-header span:first-child { display: none; } /* hides thumb placeholder */
 
     /* ─── CATEGORY STRUCTURE ─────────────────────── */
     .cat-tree {
@@ -325,12 +300,12 @@
     .subcat-name { font-size: 13.5px; font-weight: 500; flex: 1; color: var(--navy); }
     .subcat-acts { display: flex; align-items: center; gap: 5px; }
 
+    /* Base topic row — used in Content screen (simple flex) */
     .topic-row {
-      display: flex; align-items: flex-start; gap: 10px;
+      display: flex; align-items: center; gap: 10px;
       padding: 9px 13px 9px 50px;
       border-bottom: 1px solid var(--grey-border);
-      cursor: pointer;
-      min-width: 0;
+      cursor: pointer; min-width: 0;
     }
     .topic-row:hover { background: #fafbfc; }
     .topic-row:last-child { border-bottom: none; }
@@ -339,14 +314,20 @@
       background: linear-gradient(135deg,#fde68a,#f59e0b);
       flex-shrink: 0;
       display: flex; align-items: center; justify-content: center;
-      font-size: 13px; margin-top: 1px;
+      font-size: 13px;
     }
-    .topic-main   { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 5px; }
-    .topic-name   { font-size: 13px; color: var(--navy); font-weight: 500; }
-    .topic-meta   { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-    .topic-tags   { display: flex; gap: 4px; flex-wrap: wrap; }
+    .topic-name { font-size: 13px; color: var(--navy); font-weight: 500; }
+
+    /* Hub topic rows — 4-column grid aligned to col-header */
+    #content-tab .topic-row {
+      display: grid;
+      grid-template-columns: 30px 1fr 180px 1.5fr;
+      gap: 12px;
+      align-items: center;
+    }
+    #content-tab .topic-name  { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .topic-tags   { display: flex; gap: 4px; flex-wrap: wrap; align-items: center; }
     .topic-gbs    { display: flex; align-items: center; gap: 5px; flex-wrap: wrap; }
-    .topic-meta-sep { color: #cbd5e1; font-size: 10px; }
     .gb-dot-mini  { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; display: inline-block; }
     .gb-name-mini { font-size: 11px; color: var(--grey-text); }
     .topic-no-gbs { font-size: 11px; color: #cbd5e1; font-style: italic; }
@@ -769,9 +750,16 @@
 
       <!-- Content Library Tab -->
       <div id="content-tab" class="tab-content active">
-        <div class="hub-layout">
-        <div class="hub-main">
         <div class="cat-tree">
+
+          <!-- Column header -->
+          <div class="col-header">
+            <span></span>
+            <span>Topic</span>
+            <span>Tags</span>
+            <span>Guidebooks</span>
+          </div>
+
           <div class="cat-row" onclick="toggleCat(this)">
             <span class="cat-icon">👋</span>
             <span class="cat-name">Welcome</span>
@@ -784,25 +772,15 @@
             </div>
             <div class="topic-row" data-topic="Welcome" onclick="openTopicModal('Welcome')">
               <div class="topic-thumb">🍱</div>
-              <div class="topic-main">
-                <span class="topic-name">Welcome</span>
-                <div class="topic-meta">
-                  <div class="topic-tags"></div>
-                  <span class="topic-meta-sep">·</span>
-                  <div class="topic-gbs"></div>
-                </div>
-              </div>
+              <span class="topic-name">Welcome</span>
+              <div class="topic-tags"></div>
+              <div class="topic-gbs"></div>
             </div>
             <div class="topic-row" data-topic="Weather in {{city}}" onclick="openTopicModal('Weather in {{city}}')">
               <div class="topic-thumb" style="background:linear-gradient(135deg,#bfdbfe,#3b82f6)">🌤</div>
-              <div class="topic-main">
-                <span class="topic-name">Weather in {{city}}</span>
-                <div class="topic-meta">
-                  <div class="topic-tags"></div>
-                  <span class="topic-meta-sep">·</span>
-                  <div class="topic-gbs"></div>
-                </div>
-              </div>
+              <span class="topic-name">Weather in {{city}}</span>
+              <div class="topic-tags"></div>
+              <div class="topic-gbs"></div>
             </div>
           </div>
 
@@ -818,14 +796,9 @@
             </div>
             <div class="topic-row" data-topic="Breakfast Guide" onclick="openTopicModal('Breakfast Guide')">
               <div class="topic-thumb" style="background:linear-gradient(135deg,#fed7aa,#f97316)">🥐</div>
-              <div class="topic-main">
-                <span class="topic-name">Breakfast Guide</span>
-                <div class="topic-meta">
-                  <div class="topic-tags"></div>
-                  <span class="topic-meta-sep">·</span>
-                  <div class="topic-gbs"></div>
-                </div>
-              </div>
+              <span class="topic-name">Breakfast Guide</span>
+              <div class="topic-tags"></div>
+              <div class="topic-gbs"></div>
             </div>
           </div>
 
@@ -841,62 +814,13 @@
             </div>
             <div class="topic-row" data-topic="Wi-Fi Setup" onclick="openTopicModal('Wi-Fi Setup')">
               <div class="topic-thumb" style="background:linear-gradient(135deg,#d1fae5,#10b981)">📶</div>
-              <div class="topic-main">
-                <span class="topic-name">Wi-Fi Setup</span>
-                <div class="topic-meta">
-                  <div class="topic-tags"></div>
-                  <span class="topic-meta-sep">·</span>
-                  <div class="topic-gbs"></div>
-                </div>
-              </div>
+              <span class="topic-name">Wi-Fi Setup</span>
+              <div class="topic-tags"></div>
+              <div class="topic-gbs"></div>
             </div>
           </div>
+
         </div><!-- /cat-tree -->
-        </div><!-- /hub-main -->
-
-        <!-- Right summary sidebar -->
-        <div class="hub-aside">
-          <div class="hub-aside-card">
-            <div class="hub-aside-title">Summary</div>
-            <div class="hub-stat-row">
-              <span class="hub-stat-label">Total topics</span>
-              <span class="hub-stat-val">4</span>
-            </div>
-            <div class="hub-stat-row">
-              <span class="hub-stat-label">Active tags</span>
-              <span class="hub-stat-val">3</span>
-            </div>
-            <div class="hub-stat-row">
-              <span class="hub-stat-label">Guidebooks</span>
-              <span class="hub-stat-val">3</span>
-            </div>
-          </div>
-
-          <div class="hub-aside-card">
-            <div class="hub-aside-title">Tag Legend</div>
-            <div class="hub-tag-legend">
-              <div class="hub-tag-legend-item">
-                <span class="gb-dot-mini" style="background:#0e7c7b;width:9px;height:9px"></span>
-                <span style="font-size:12px;color:var(--navy)">Beach Retreat Villa</span>
-              </div>
-              <div class="hub-tag-legend-item">
-                <span class="gb-dot-mini" style="background:#7c3aed;width:9px;height:9px"></span>
-                <span style="font-size:12px;color:var(--navy)">Mountain Lodge</span>
-              </div>
-              <div class="hub-tag-legend-item">
-                <span class="gb-dot-mini" style="background:#d97706;width:9px;height:9px"></span>
-                <span style="font-size:12px;color:var(--navy)">City Apartment</span>
-              </div>
-            </div>
-          </div>
-
-          <div class="hub-aside-card" style="background:#f0fdf4;border-color:#bbf7d0;">
-            <div style="font-size:11.5px;color:#166534;line-height:1.5;">
-              <strong>Click any topic</strong> to edit its tag and guidebook assignments.
-            </div>
-          </div>
-        </div><!-- /hub-aside -->
-        </div><!-- /hub-layout -->
       </div>
 
       <!-- Tags Tab -->
@@ -1091,9 +1015,6 @@
       }
     }
 
-    // Show/hide separator dot between tags and gbs
-    var sep = row.querySelector('.topic-meta > .topic-meta-sep');
-    if (sep) sep.style.display = (tags.length && gbs.length) ? '' : 'none';
   }
 
   function renderTagItem(tagName) {
