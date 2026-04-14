@@ -1232,17 +1232,17 @@
             <span class="chevron open">▾</span>
           </div>
           <div class="cat-body open">
-            <div class="subcat-row">
+            <div class="subcat-row" onclick="selectSubcat(this)">
               <span class="subcat-arrow">↳</span>
               <span class="subcat-name">Welcome</span>
             </div>
-            <div class="topic-row" data-topic="Welcome" onclick="openTopicModal('Welcome')">
+            <div class="topic-row" data-topic="Welcome" onclick="openTopicEditModal(this)">
               <div class="topic-thumb">🍱</div>
               <span class="topic-name">Welcome</span>
               <div class="topic-tags"></div>
               <div class="topic-gbs"></div>
             </div>
-            <div class="topic-row" data-topic="Weather in {{city}}" onclick="openTopicModal('Weather in {{city}}')">
+            <div class="topic-row" data-topic="Weather in {{city}}" onclick="openTopicEditModal(this)">
               <div class="topic-thumb" style="background:linear-gradient(135deg,#bfdbfe,#3b82f6)">🌤</div>
               <span class="topic-name">Weather in {{city}}</span>
               <div class="topic-tags"></div>
@@ -1256,11 +1256,11 @@
             <span class="chevron">▾</span>
           </div>
           <div class="cat-body">
-            <div class="subcat-row">
+            <div class="subcat-row" onclick="selectSubcat(this)">
               <span class="subcat-arrow">↳</span>
               <span class="subcat-name">Breakfast</span>
             </div>
-            <div class="topic-row" data-topic="Breakfast Guide" onclick="openTopicModal('Breakfast Guide')">
+            <div class="topic-row" data-topic="Breakfast Guide" onclick="openTopicEditModal(this)">
               <div class="topic-thumb" style="background:linear-gradient(135deg,#fed7aa,#f97316)">🥐</div>
               <span class="topic-name">Breakfast Guide</span>
               <div class="topic-tags"></div>
@@ -1274,11 +1274,11 @@
             <span class="chevron">▾</span>
           </div>
           <div class="cat-body">
-            <div class="subcat-row">
+            <div class="subcat-row" onclick="selectSubcat(this)">
               <span class="subcat-arrow">↳</span>
               <span class="subcat-name">Amenities</span>
             </div>
-            <div class="topic-row" data-topic="Wi-Fi Setup" onclick="openTopicModal('Wi-Fi Setup')">
+            <div class="topic-row" data-topic="Wi-Fi Setup" onclick="openTopicEditModal(this)">
               <div class="topic-thumb" style="background:linear-gradient(135deg,#d1fae5,#10b981)">📶</div>
               <span class="topic-name">Wi-Fi Setup</span>
               <div class="topic-tags"></div>
@@ -1287,6 +1287,10 @@
           </div>
 
         </div><!-- /cat-tree -->
+        <button class="add-cat-btn" onclick="startAddCategory(this)">
+          <svg width="14" height="14" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"/></svg>
+          Add Category
+        </button>
       </div>
 
       <!-- Tags Tab -->
@@ -1878,7 +1882,7 @@
 
   // Inject Add Subcategory button into every cat-body that doesn't have one yet
   function initCatAddButtons() {
-    document.querySelectorAll('#screen-content .cat-body').forEach(function(body) {
+    document.querySelectorAll('#screen-content .cat-body, #screen-hub .cat-body').forEach(function(body) {
       if (!body.querySelector('.add-inline-btns')) {
         var btns = document.createElement('div');
         btns.className = 'add-inline-btns';
@@ -1926,18 +1930,28 @@
       closeTopicEditModal();
       toast('✓ "' + title + '" saved');
     } else if (_createTargetCatBody) {
-      // Create mode: build a new guidebook-specific topic row
       var icon = TOPIC_ICONS[Math.floor(Math.random() * TOPIC_ICONS.length)];
       var grad = TOPIC_GRADS[Math.floor(Math.random() * TOPIC_GRADS.length)];
       var row = document.createElement('div');
-      row.className = 'topic-row editable slide-in';
+      var isHub = !!_createTargetCatBody.closest('#screen-hub');
+      row.className = 'topic-row slide-in' + (isHub ? '' : ' editable');
       row.setAttribute('onclick', 'openTopicEditModal(this)');
-      row.innerHTML =
-        '<div class="topic-thumb" style="background:' + grad + '">' + icon + '</div>'
-        + '<div class="topic-main">'
-        + '<span class="topic-name">' + title + '</span>'
-        + '<div class="topic-meta"><span class="tag tag-gb">Beach Retreat Villa</span></div>'
-        + '</div>';
+      if (isHub) {
+        // Hub-style: columns for tags + guidebooks
+        row.innerHTML =
+          '<div class="topic-thumb" style="background:' + grad + '">' + icon + '</div>'
+          + '<span class="topic-name">' + title + '</span>'
+          + '<div class="topic-tags"></div>'
+          + '<div class="topic-gbs"></div>';
+      } else {
+        // Guidebook-specific style
+        row.innerHTML =
+          '<div class="topic-thumb" style="background:' + grad + '">' + icon + '</div>'
+          + '<div class="topic-main">'
+          + '<span class="topic-name">' + title + '</span>'
+          + '<div class="topic-meta"><span class="tag tag-gb">Beach Retreat Villa</span></div>'
+          + '</div>';
+      }
       var insertRef = _createInsertBefore || _createTargetCatBody.querySelector('.add-inline-btns');
       _createTargetCatBody.insertBefore(row, insertRef);
       // Expand category if collapsed
@@ -2010,7 +2024,7 @@
     var name = form.querySelector('input').value.trim();
     if (!name) { form.querySelector('input').focus(); return; }
     var icon = CAT_ICONS[Math.floor(Math.random() * CAT_ICONS.length)];
-    var catTree = document.querySelector('#screen-content .cat-tree');
+    var catTree = form.parentElement.querySelector('.cat-tree');
     // Create row
     var catRow = document.createElement('div');
     catRow.className = 'cat-row';
@@ -2024,17 +2038,18 @@
     catBody.className = 'cat-body';
     catTree.appendChild(catRow);
     catTree.appendChild(catBody);
-    initCatAddButtons(); // inject add-topic/subcat buttons into new body
+    initCatAddButtons();
+    var addBtn = form.previousElementSibling;
     form.remove();
-    var addBtn = document.querySelector('.add-cat-btn');
-    if (addBtn) addBtn.style.display = '';
+    if (addBtn && addBtn.classList.contains('add-cat-btn')) addBtn.style.display = '';
     toast('✓ Category "' + name + '" created');
   }
 
   function cancelAddCategory(btnEl) {
-    btnEl.closest('.add-inline-form').remove();
-    var addBtn = document.querySelector('.add-cat-btn');
-    if (addBtn) addBtn.style.display = '';
+    var form = btnEl.closest('.add-inline-form');
+    var addBtn = form.previousElementSibling;
+    form.remove();
+    if (addBtn && addBtn.classList.contains('add-cat-btn')) addBtn.style.display = '';
   }
 
   function cancelInlineForm(btn) {
