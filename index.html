@@ -943,6 +943,40 @@
     .topic-row.slide-in {
       animation: slideInTopic 0.38s ease forwards;
     }
+
+    /* ─── DRAG & DROP ────────────────────────────── */
+    .cat-row, .subcat-row, .topic-row { position: relative; }
+
+    .dnd-handle {
+      position: absolute; left: 7px; top: 50%; transform: translateY(-50%);
+      width: 10px; height: 14px;
+      display: grid; grid-template-columns: 4px 4px; grid-template-rows: repeat(3, 4px); gap: 2px;
+      opacity: 0; transition: opacity 0.12s; z-index: 2; pointer-events: none;
+    }
+    .dnd-handle i { display: block; width: 4px; height: 4px; border-radius: 50%; background: #94a3b8; }
+    .cat-row:hover .dnd-handle,
+    .subcat-row:hover .dnd-handle,
+    .topic-row:hover .dnd-handle { opacity: 1; }
+
+    .dnd-lock {
+      position: absolute; left: 7px; top: 50%; transform: translateY(-50%);
+      opacity: 0; transition: opacity 0.12s; z-index: 2; pointer-events: none; color: #d1d5db;
+    }
+    .cat-row:hover .dnd-lock,
+    .subcat-row:hover .dnd-lock,
+    .topic-row:hover .dnd-lock { opacity: 0.6; }
+
+    .dnd-dragging { opacity: 0.3 !important; }
+
+    #dnd-drop-line {
+      position: fixed; height: 2px; background: var(--teal); border-radius: 2px;
+      pointer-events: none; z-index: 9999; display: none;
+      box-shadow: 0 0 5px rgba(20,184,168,0.4);
+    }
+    #dnd-drop-line::before {
+      content: ''; position: absolute; left: -4px; top: 50%; transform: translateY(-50%);
+      width: 8px; height: 8px; border-radius: 50%; background: var(--teal);
+    }
   </style>
 </head>
 <body>
@@ -1705,6 +1739,7 @@
 
 <!-- ═══════════════════════════════════════════════ TOAST ════════ -->
 <div class="toast" id="toast-el"></div>
+<div id="dnd-drop-line"></div>
 
 <!-- ═══════════════════════════════════════════════ BADGE ════════ -->
 <div class="proto-badge">Prototype — v0.2</div>
@@ -1958,6 +1993,7 @@
       toast('✓ Topic "' + title + '" created');
       _createTargetCatBody = null;
       _createInsertBefore  = null;
+      initDragDrop();
     }
   }
 
@@ -1995,6 +2031,7 @@
     setTimeout(function() { subcat.classList.remove('slide-in'); }, 400);
     form.remove();
     toast('✓ Subcategory "' + name + '" added');
+    initDragDrop();
   }
 
   // ── Add Category: inline form below the cat-tree ──
@@ -2035,6 +2072,7 @@
     form.remove();
     if (addBtn && addBtn.classList.contains('add-cat-btn')) addBtn.style.display = '';
     toast('✓ Category "' + name + '" created');
+    initDragDrop();
   }
 
   function cancelAddCategory(btnEl) {
@@ -2054,6 +2092,7 @@
     renderGuidebookTags();
     searchAddContent('');
     initCatAddButtons();
+    initDragDrop();
   }
 
   function renderGuidebookTags() {
@@ -2666,6 +2705,194 @@
     clearTimeout(el._t);
     el._t = setTimeout(function() { el.classList.remove('show'); }, 3200);
   }
+
+  /* ══════════════════════════════════════
+     DRAG AND DROP
+  ══════════════════════════════════════ */
+  (function() {
+    var _dragItems = [], _dragType = null, _dragScreen = null;
+    var _dropTarget = null, _sourceParent = null;
+    var _dropLine = null;
+
+    function getSubcatGroup(subcatRow) {
+      var nodes = [subcatRow], cur = subcatRow.nextElementSibling;
+      while (cur && cur.classList.contains('topic-row')) { nodes.push(cur); cur = cur.nextElementSibling; }
+      return nodes;
+    }
+
+    function inHub(el) { return !!el.closest('#screen-hub'); }
+
+    function isCatDraggable(el) {
+      if (inHub(el)) return true;
+      var b = el.nextElementSibling;
+      return !b || !b.classList.contains('cat-body') || b.querySelectorAll('.tag.tag-sh').length === 0;
+    }
+    function isSubcatDraggable(el) {
+      if (inHub(el)) return true;
+      var g = getSubcatGroup(el);
+      return !g.some(function(n) { return n.querySelectorAll('.tag.tag-sh').length > 0; });
+    }
+    function isTopicDraggable(el) {
+      if (inHub(el)) return true;
+      return !!el.querySelector('.tag.tag-gb') && !el.querySelector('.tag.tag-sh');
+    }
+
+    function makeHandle() {
+      var h = document.createElement('div'); h.className = 'dnd-handle';
+      for (var i = 0; i < 6; i++) { var d = document.createElement('i'); h.appendChild(d); }
+      return h;
+    }
+    function makeLock() {
+      var l = document.createElement('div'); l.className = 'dnd-lock';
+      l.innerHTML = '<svg width="10" height="12" viewBox="0 0 10 12" fill="currentColor"><rect x="1.5" y="5" width="7" height="6" rx="1"/><path d="M3 5V3.5a2 2 0 114 0V5" stroke="currentColor" stroke-width="1.2" fill="none"/></svg>';
+      return l;
+    }
+
+    function decorateRow(el, type) {
+      if (el.dataset.dndReady) return;
+      el.dataset.dndReady = '1';
+      var can = type === 'cat' ? isCatDraggable(el) : type === 'subcat' ? isSubcatDraggable(el) : isTopicDraggable(el);
+      el.insertBefore(can ? makeHandle() : (inHub(el) ? makeHandle() : makeLock()), el.firstChild);
+      if (can) {
+        el.setAttribute('draggable', 'true');
+        el.addEventListener('dragstart', onDragStart);
+        el.addEventListener('dragend', onDragEnd);
+      }
+    }
+
+    window.initDragDrop = function() {
+      _dropLine = document.getElementById('dnd-drop-line');
+      document.querySelectorAll('#screen-content .cat-row,#screen-hub .cat-row').forEach(function(el) { decorateRow(el, 'cat'); });
+      document.querySelectorAll('#screen-content .subcat-row,#screen-hub .subcat-row').forEach(function(el) { decorateRow(el, 'subcat'); });
+      document.querySelectorAll('#screen-content .topic-row,#screen-hub .topic-row').forEach(function(el) { decorateRow(el, 'topic'); });
+      document.querySelectorAll('#screen-content .cat-tree,#screen-hub .cat-tree,#screen-content .cat-body,#screen-hub .cat-body').forEach(function(el) {
+        if (el.dataset.dndZone) return;
+        el.dataset.dndZone = '1';
+        el.addEventListener('dragover', onDragOver);
+        el.addEventListener('dragleave', onDragLeave);
+        el.addEventListener('drop', onDrop);
+      });
+    };
+
+    function onDragStart(e) {
+      var row = e.currentTarget;
+      _dragType = row.classList.contains('cat-row') ? 'cat' : row.classList.contains('subcat-row') ? 'subcat' : 'topic';
+      _dragScreen = inHub(row) ? 'hub' : 'content';
+      if (_dragType === 'cat') {
+        var b = row.nextElementSibling;
+        _dragItems = (b && b.classList.contains('cat-body')) ? [row, b] : [row];
+        _sourceParent = row.parentElement;
+      } else if (_dragType === 'subcat') {
+        _dragItems = getSubcatGroup(row);
+        _sourceParent = row.parentElement;
+      } else {
+        _dragItems = [row];
+        _sourceParent = row.parentElement;
+      }
+      e.dataTransfer.effectAllowed = 'move';
+      e.dataTransfer.setData('text/plain', '');
+      setTimeout(function() { _dragItems.forEach(function(n) { n.classList.add('dnd-dragging'); }); }, 0);
+    }
+
+    function onDragEnd() {
+      _dragItems.forEach(function(n) { n.classList.remove('dnd-dragging'); });
+      hideLine();
+      _dragItems = []; _dragType = null; _dropTarget = null; _sourceParent = null;
+    }
+
+    function onDragOver(e) {
+      if (!_dragItems.length) return;
+      e.preventDefault(); e.stopPropagation();
+      e.dataTransfer.dropEffect = 'move';
+      var t = computeDropTarget(e.clientY);
+      if (!t) { hideLine(); return; }
+      _dropTarget = t;
+      showLine(t);
+    }
+
+    function onDragLeave(e) {
+      if (!e.currentTarget.contains(e.relatedTarget)) hideLine();
+    }
+
+    function onDrop(e) {
+      e.preventDefault(); e.stopPropagation();
+      hideLine();
+      if (!_dropTarget || !_dragItems.length) return;
+      if (_dragType === 'cat' && _dropTarget.parent !== _sourceParent) return;
+      var parent = _dropTarget.parent, ref = _dropTarget.before;
+      if (ref && _dragItems.indexOf(ref) >= 0) return;
+      _dragItems.forEach(function(node) { parent.insertBefore(node, ref || null); });
+      if (_dragScreen === 'hub') {
+        var seen = {}, names = [];
+        _dragItems.forEach(function(n) { n.querySelectorAll('.gb-name-mini').forEach(function(el) { var t = el.textContent.trim(); if (t && !seen[t]) { seen[t] = true; names.push(t); } }); });
+        toast(names.length ? '✓ Reordered — affects: ' + names.join(', ') : '✓ Reordered');
+      }
+      _dragItems = []; _dropTarget = null;
+    }
+
+    function computeDropTarget(py) {
+      var scrEl = document.getElementById(_dragScreen === 'hub' ? 'screen-hub' : 'screen-content');
+      if (!scrEl) return null;
+
+      if (_dragType === 'cat') {
+        return getInsertPoint(_sourceParent, getCatCandidates(_sourceParent), py);
+      }
+
+      // subcat / topic: find open cat-body under pointer
+      var bodies = scrEl.querySelectorAll('.cat-body.open');
+      var body = null;
+      for (var i = 0; i < bodies.length; i++) {
+        var r = bodies[i].getBoundingClientRect();
+        if (py >= r.top - 8 && py <= r.bottom + 8) { body = bodies[i]; break; }
+      }
+      if (!body) return null;
+      var sibs = getBodyCandidates(body, _dragType);
+      return getInsertPoint(body, sibs, py);
+    }
+
+    function getCatCandidates(tree) {
+      var out = [], c = tree.firstElementChild;
+      while (c) { if (_dragItems.indexOf(c) < 0) out.push(c); c = c.nextElementSibling; }
+      return out;
+    }
+
+    function getBodyCandidates(body, type) {
+      var out = [], c = body.firstElementChild;
+      while (c) {
+        if (_dragItems.indexOf(c) < 0 && (c.classList.contains('subcat-row') || c.classList.contains('topic-row'))) out.push(c);
+        c = c.nextElementSibling;
+      }
+      return out;
+    }
+
+    function getInsertPoint(parent, siblings, py) {
+      for (var i = 0; i < siblings.length; i++) {
+        var r = siblings[i].getBoundingClientRect();
+        if (py < r.top + r.height / 2) return { parent: parent, before: siblings[i] };
+      }
+      var addbtn = parent.querySelector('.add-inline-btns,.add-inline-form,.subcat-add-topic');
+      return { parent: parent, before: addbtn || null };
+    }
+
+    function showLine(t) {
+      if (!_dropLine) return;
+      var y;
+      if (t.before) {
+        y = t.before.getBoundingClientRect().top;
+      } else {
+        var children = t.parent.children, last = null;
+        for (var i = children.length - 1; i >= 0; i--) {
+          var cl = children[i].classList;
+          if (!cl.contains('add-inline-btns') && !cl.contains('add-inline-form') && !cl.contains('subcat-add-topic')) { last = children[i]; break; }
+        }
+        y = last ? last.getBoundingClientRect().bottom : t.parent.getBoundingClientRect().top + 4;
+      }
+      var pr = t.parent.getBoundingClientRect();
+      _dropLine.style.cssText = 'position:fixed;left:' + pr.left + 'px;top:' + (y - 1) + 'px;width:' + pr.width + 'px;display:block;';
+    }
+
+    function hideLine() { if (_dropLine) _dropLine.style.display = 'none'; }
+  })();
 
   /* ── INIT: script is at bottom of body so DOM is already ready ── */
   renderAll();
