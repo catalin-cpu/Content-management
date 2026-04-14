@@ -778,7 +778,37 @@
     }
     .tem-vis-search:focus { border-color: var(--teal); }
     .tem-vis-gb-row input[disabled] { opacity: 0.45; cursor: not-allowed; }
-    .tem-vis-via-tag { font-size: 11px; color: #94a3b8; font-style: italic; white-space: nowrap; }
+    /* ─── SHARE MODAL ────────────────────────────── */
+    .share-url-bar {
+      display: flex; align-items: stretch;
+      border: 1px solid var(--grey-border); border-radius: 8px;
+      overflow: hidden; margin-bottom: 20px; font-size: 13px;
+    }
+    .share-url-seg { padding: 9px 10px; white-space: nowrap; flex-shrink: 0; display: flex; align-items: center; }
+    .share-url-proto  { background: #f1f5f9; color: var(--grey-dark); border-right: 1px solid var(--grey-border); }
+    .share-url-sub    { color: var(--navy); font-weight: 600; border-right: 1px solid var(--grey-border); }
+    .share-url-domain { background: #f1f5f9; color: var(--grey-dark); border-right: 1px solid var(--grey-border); }
+    .share-url-path   { flex: 1; color: var(--navy); font-weight: 500; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+    .share-copy-btn {
+      padding: 0 13px; background: none; border: none; border-left: 1px solid var(--grey-border);
+      cursor: pointer; color: var(--grey-dark); display: flex; align-items: center;
+      transition: background 0.12s;
+    }
+    .share-copy-btn:hover { background: var(--grey-mid); color: var(--teal-dark); }
+    .share-actions { display: flex; flex-direction: column; gap: 10px; }
+    .share-action-card {
+      display: flex; align-items: center; gap: 14px;
+      padding: 14px 16px; border: 1.5px solid var(--grey-border); border-radius: 10px;
+      cursor: pointer; transition: border-color 0.15s, background 0.15s;
+    }
+    .share-action-card:hover { border-color: var(--teal); background: #f0fdfa; }
+    .share-action-icon {
+      width: 44px; height: 44px; border-radius: 10px;
+      background: var(--grey-mid); display: flex; align-items: center; justify-content: center;
+      font-size: 22px; flex-shrink: 0;
+    }
+    .share-action-title { font-size: 13.5px; font-weight: 600; color: var(--navy); margin-bottom: 2px; }
+    .share-action-desc  { font-size: 12px; color: var(--grey-text); }
 
     /* ─── SLIDE-IN ANIMATION ──────────────────────── */
     @keyframes slideInTopic {
@@ -1008,7 +1038,7 @@
         </div>
       </div>
 
-      <button class="btn-share-link">Quick share link</button>
+      <button class="btn-share-link" onclick="openShareModal()">Quick share link</button>
     </div>
   </div>
 
@@ -1355,6 +1385,65 @@
   </div>
 </div>
 
+<!-- ═══════════════════════════════════════════ SHARE MODAL ════════ -->
+<div class="modal-overlay" id="share-modal">
+  <div class="modal" style="width:480px">
+    <div class="modal-head">
+      <div class="modal-title">Share guidebook</div>
+      <span class="modal-close" onclick="closeShareModal()">×</span>
+    </div>
+    <div class="modal-body">
+
+      <!-- URL bar -->
+      <div class="share-url-bar">
+        <span class="share-url-seg share-url-proto">https://</span>
+        <span class="share-url-seg share-url-sub">guide</span>
+        <span class="share-url-seg share-url-domain">.touchstay.com/</span>
+        <span class="share-url-seg share-url-path">guest/bOBugbT8aYG6U/</span>
+        <button class="share-copy-btn" onclick="copyShareLink()" title="Copy link">
+          <svg width="15" height="15" viewBox="0 0 20 20" fill="currentColor">
+            <path d="M8 2a1 1 0 000 2h2a1 1 0 100-2H8z"/>
+            <path d="M3 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v6h-4.586l1.293-1.293a1 1 0 00-1.414-1.414l-3 3a1 1 0 000 1.414l3 3a1 1 0 001.414-1.414L10.414 13H15v3a2 2 0 01-2 2H5a2 2 0 01-2-2V5zM15 11h2a1 1 0 110 2h-2v-2z"/>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Actions -->
+      <div class="share-actions">
+        <div class="share-action-card" onclick="toast('✓ QR code downloaded'); closeShareModal();">
+          <div class="share-action-icon" style="background:var(--navy);color:white;">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M3 3h7v7H3V3zm1 1v5h5V4H4zm1 1h3v3H5V5zM13 3h7v7h-7V3zm1 1v5h5V4h-5zm1 1h3v3h-3V5zM3 13h7v7H3v-7zm1 1v5h5v-5H4zm1 1h3v3H5v-3zM16 13h2v2h-2v-2zm2 2h2v2h-2v-2zm-2 2h2v2h-2v-2zm2 2h2v2h-2v-2zm-4-6h2v2h-2v-2zm0 4h2v2h-2v-2zm4-2h2v2h-2v-2z"/>
+            </svg>
+          </div>
+          <div>
+            <div class="share-action-title">Download QR Code</div>
+            <div class="share-action-desc">Get a QR code image for print or digital use</div>
+          </div>
+          <svg style="margin-left:auto;color:#cbd5e1" width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+        </div>
+
+        <div class="share-action-card" onclick="toast('✓ Invitation created'); closeShareModal();">
+          <div class="share-action-icon" style="background:#ede9fe;color:#7c3aed;">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>
+            </svg>
+          </div>
+          <div>
+            <div class="share-action-title">Create Invitation</div>
+            <div class="share-action-desc">Send a personalised invite link to your guests</div>
+          </div>
+          <svg style="margin-left:auto;color:#cbd5e1" width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/></svg>
+        </div>
+      </div>
+
+    </div>
+    <div class="modal-foot">
+      <button class="btn-cancel" onclick="closeShareModal()">Close</button>
+    </div>
+  </div>
+</div>
+
 <!-- ══════════════════════════════════ REMOVE TAG CONFIRM MODAL ══ -->
 <div class="modal-overlay" id="remove-tag-modal">
   <div class="modal" style="width:420px">
@@ -1665,11 +1754,12 @@
     var myTags = Object.keys(tagGuidebooks).filter(function(t) {
       return tagGuidebooks[t].indexOf('Beach Retreat Villa') >= 0;
     });
-    el.innerHTML = myTags.length
-      ? myTags.map(function(t) {
-          return '<span class="tag tag-sh tag-removable" onclick="confirmRemoveTag(\'' + t.replace(/'/g,"\\'") + '\')" title="Click to remove topics with this tag">' + t + ' ✕</span>';
-        }).join('')
-      : '<span style="font-size:12px;color:#94a3b8;font-style:italic">None yet</span>';
+    // Always prepend the guidebook name as a non-removable default chip
+    var defaultChip = '<span class="tag tag-gb" style="cursor:default;" title="Default — cannot be removed">Beach Retreat Villa</span>';
+    var removableChips = myTags.map(function(t) {
+      return '<span class="tag tag-sh tag-removable" onclick="confirmRemoveTag(\'' + t.replace(/'/g,"\\'") + '\')" title="Click to remove topics with this tag">' + t + ' ✕</span>';
+    }).join('');
+    el.innerHTML = defaultChip + removableChips;
   }
 
   /* ══════════════════════════════════════
@@ -2068,7 +2158,6 @@
         + ' style="width:15px;height:15px;accent-color:var(--teal-dark);flex-shrink:0;cursor:' + (isDisabled ? 'not-allowed' : 'pointer') + ';">'
         + '<span class="tem-vis-dot" style="background:' + (GB_COLORS[gb] || '#94a3b8') + '"></span>'
         + '<span style="flex:1;font-size:13px;">' + gb + '</span>'
-        + (viaTag ? '<span class="tem-vis-via-tag">via ' + viaTagNames[0] + '</span>' : '')
         + '</div>';
     }).join('');
   }
@@ -2187,6 +2276,14 @@
     closeRemoveTagModal();
     searchAddContent(document.getElementById('add-search-input').value);
     toast('✓ Removed ' + removed + ' topic' + (removed !== 1 ? 's' : '') + ' with tag "' + tagName + '"');
+  }
+
+  /* ── SHARE MODAL ── */
+  function openShareModal()  { document.getElementById('share-modal').classList.add('open'); }
+  function closeShareModal() { document.getElementById('share-modal').classList.remove('open'); }
+  function copyShareLink() {
+    navigator.clipboard && navigator.clipboard.writeText('https://guide.touchstay.com/guest/bOBugbT8aYG6U/');
+    toast('✓ Link copied to clipboard');
   }
 
   /* ── TOAST ── */
