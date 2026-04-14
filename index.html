@@ -637,6 +637,10 @@
       border-radius: 8px; padding: 9px 14px; margin-bottom: 18px; cursor: pointer;
     }
     .gb-selector-bar:hover { border-color: #94a3b8; }
+    .gb-selector-bar.open { border-color: var(--teal); }
+    .gb-selector-bar-thumb { width:20px; height:20px; border-radius:5px; background:linear-gradient(135deg,#6ee7b7,#059669); flex-shrink:0; }
+    .screen-gb-dropdown { display:none; border:1px solid #e2e8f0; border-radius:10px; box-shadow:0 4px 16px rgba(0,0,0,.10); overflow:hidden; margin-bottom:14px; }
+    .screen-gb-dropdown.open { display:block; }
 
     /* ─── PROP-STYLE SECTION CARDS ───────────────── */
     .prop-section {
@@ -1929,10 +1933,14 @@
     <div class="settings-screen">
       <div class="settings-pane">
         <h1 class="page-title">Property Info</h1>
-        <div class="gb-selector-bar">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style="color:#94a3b8"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
-          <span style="font-size:13px;font-weight:600;color:#1e293b;">Beach Retreat Villa</span>
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" style="color:#94a3b8;margin-left:auto"><path d="M7 10l5 5 5-5z"/></svg>
+        <div class="gb-selector-bar" id="gb-bar-prop-info" onclick="toggleScreenGbDropdown('prop-info')">
+          <div class="gb-selector-bar-thumb" id="gb-bar-thumb-prop-info"></div>
+          <span class="gb-bar-name" style="font-size:13px;font-weight:600;color:#1e293b;">Beach Retreat Villa</span>
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" style="color:#94a3b8;margin-left:auto;flex-shrink:0"><path d="M7 10l5 5 5-5z"/></svg>
+        </div>
+        <div class="screen-gb-dropdown" id="sgb-prop-info">
+          <div class="gb-search-wrap"><input class="gb-search-input" type="text" placeholder="Search guidebooks…" oninput="renderScreenGbList(this.value,'prop-info')" onclick="event.stopPropagation()"></div>
+          <div class="gb-list" id="sgb-list-prop-info"></div>
         </div>
 
         <!-- Check-in & Check-out -->
@@ -2162,10 +2170,14 @@
     <div class="settings-screen">
       <div class="settings-pane">
         <h1 class="page-title">Appearance</h1>
-        <div class="gb-selector-bar">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style="color:#94a3b8"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
-          <span style="font-size:13px;font-weight:600;color:#1e293b;">Beach Retreat Villa</span>
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" style="color:#94a3b8;margin-left:auto"><path d="M7 10l5 5 5-5z"/></svg>
+        <div class="gb-selector-bar" id="gb-bar-appearance" onclick="toggleScreenGbDropdown('appearance')">
+          <div class="gb-selector-bar-thumb" id="gb-bar-thumb-appearance"></div>
+          <span class="gb-bar-name" style="font-size:13px;font-weight:600;color:#1e293b;">Beach Retreat Villa</span>
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" style="color:#94a3b8;margin-left:auto;flex-shrink:0"><path d="M7 10l5 5 5-5z"/></svg>
+        </div>
+        <div class="screen-gb-dropdown" id="sgb-appearance">
+          <div class="gb-search-wrap"><input class="gb-search-input" type="text" placeholder="Search guidebooks…" oninput="renderScreenGbList(this.value,'appearance')" onclick="event.stopPropagation()"></div>
+          <div class="gb-list" id="sgb-list-appearance"></div>
         </div>
 
         <!-- Cover Photos -->
@@ -2374,10 +2386,14 @@
     <div class="settings-screen">
       <div class="settings-pane">
         <h1 class="page-title">Settings &amp; Features</h1>
-        <div class="gb-selector-bar">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style="color:#94a3b8"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
-          <span style="font-size:13px;font-weight:600;color:#1e293b;">Beach Retreat Villa</span>
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" style="color:#94a3b8;margin-left:auto"><path d="M7 10l5 5 5-5z"/></svg>
+        <div class="gb-selector-bar" id="gb-bar-settings" onclick="toggleScreenGbDropdown('settings')">
+          <div class="gb-selector-bar-thumb" id="gb-bar-thumb-settings"></div>
+          <span class="gb-bar-name" style="font-size:13px;font-weight:600;color:#1e293b;">Beach Retreat Villa</span>
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" style="color:#94a3b8;margin-left:auto;flex-shrink:0"><path d="M7 10l5 5 5-5z"/></svg>
+        </div>
+        <div class="screen-gb-dropdown" id="sgb-settings">
+          <div class="gb-search-wrap"><input class="gb-search-input" type="text" placeholder="Search guidebooks…" oninput="renderScreenGbList(this.value,'settings')" onclick="event.stopPropagation()"></div>
+          <div class="gb-list" id="sgb-list-settings"></div>
         </div>
 
         <!-- SEO -->
@@ -4833,10 +4849,9 @@
       });
     }
 
-    // 4 — gb-selector-bar label (Property Info, Appearance, Settings screens)
-    document.querySelectorAll('.gb-selector-bar span[style*="font-weight:600"]').forEach(function(el){
-      el.textContent = gb.name;
-    });
+    // 4 — gb-selector-bar label + thumb (Property Info, Appearance, Settings screens)
+    document.querySelectorAll('.gb-bar-name').forEach(function(el){ el.textContent = gb.name; });
+    document.querySelectorAll('.gb-selector-bar-thumb').forEach(function(el){ el.style.background = gb.color; });
 
     // 5 — dynamic per-guidebook topics section
     var dynSection = document.getElementById('gb-dynamic-section');
@@ -4921,9 +4936,71 @@
   // Init thumb colour + sync content
   (function(){
     var gb = _guidebooks.find(function(g){ return g.id===_activeGb; });
-    if (gb) document.getElementById('gb-selector-thumb').style.background = gb.color;
+    if (gb) {
+      document.getElementById('gb-selector-thumb').style.background = gb.color;
+      document.querySelectorAll('.gb-selector-bar-thumb').forEach(function(el){ el.style.background = gb.color; });
+    }
     syncGbContent(_activeGb);
   })();
+  var _screenGbKeys = ['prop-info','appearance','settings'];
+
+  function toggleScreenGbDropdown(key) {
+    var dd = document.getElementById('sgb-' + key);
+    var bar = document.getElementById('gb-bar-' + key);
+    var isOpen = dd.classList.contains('open');
+    // close all first
+    _screenGbKeys.forEach(function(k) {
+      document.getElementById('sgb-' + k).classList.remove('open');
+      document.getElementById('gb-bar-' + k).classList.remove('open');
+    });
+    if (!isOpen) {
+      dd.classList.add('open');
+      bar.classList.add('open');
+      var inp = dd.querySelector('input');
+      inp.value = '';
+      renderScreenGbList('', key);
+      setTimeout(function(){ inp.focus(); }, 50);
+    }
+  }
+
+  function renderScreenGbList(filter, key) {
+    var list = document.getElementById('sgb-list-' + key);
+    if (!list) return;
+    var q = (filter || '').toLowerCase();
+    var items = _guidebooks.filter(function(g){ return !q || g.name.toLowerCase().indexOf(q) > -1 || g.type.toLowerCase().indexOf(q) > -1; });
+    list.innerHTML = items.map(function(g) {
+      return '<div class="gb-option' + (g.id===_activeGb?' active':'') + '" onclick="selectGuidebook(\'' + g.id + '\')">' +
+        '<div class="gb-option-thumb" style="background:' + g.color + '"></div>' +
+        '<div class="gb-option-info"><div class="gb-option-name">' + g.name + '</div><div class="gb-option-type">' + g.type + '</div></div>' +
+        (g.id===_activeGb ? '<span class="gb-option-check">✓</span>' : '') +
+        '</div>';
+    }).join('') || '<div style="padding:12px;font-size:12px;color:#94a3b8;text-align:center;">No guidebooks found</div>';
+  }
+
+  // Close screen dropdowns on outside click
+  document.addEventListener('click', function(e) {
+    _screenGbKeys.forEach(function(k) {
+      var bar = document.getElementById('gb-bar-' + k);
+      var dd  = document.getElementById('sgb-' + k);
+      if (bar && dd && !bar.contains(e.target) && !dd.contains(e.target)) {
+        bar.classList.remove('open');
+        dd.classList.remove('open');
+      }
+    });
+  });
+
+  // Also close screen dropdowns when selectGuidebook fires
+  var _origSelectGb = selectGuidebook;
+  selectGuidebook = function(id) {
+    _screenGbKeys.forEach(function(k) {
+      var bar = document.getElementById('gb-bar-' + k);
+      var dd  = document.getElementById('sgb-' + k);
+      if (bar) bar.classList.remove('open');
+      if (dd)  dd.classList.remove('open');
+    });
+    _origSelectGb(id);
+  };
+
   // ─── End Guidebook Selector ───────────────────────────────
 
   function openNewGuidebookModal() {
