@@ -3698,7 +3698,8 @@
       var name = chip.textContent.trim();
       if (!seen[name]) { seen[name] = true; myTags.push(name); }
     });
-    var defaultChip = '<span class="tag tag-gb" style="cursor:default;" title="Default — cannot be removed">Beach Retreat Villa</span>';
+    var gbName = (_guidebooks && _activeGb) ? (_guidebooks.find(function(g){return g.id===_activeGb;})||{name:'Guidebook'}).name : 'Guidebook';
+    var defaultChip = '<span class="tag tag-gb" style="cursor:default;" title="Default — cannot be removed">' + gbName + '</span>';
     var removableChips = myTags.map(function(t) {
       return '<span class="tag tag-sh tag-removable" onclick="confirmRemoveTag(\'' + t.replace(/'/g,"\\'") + '\')" title="Click to remove topics with this tag">' + t + ' ✕</span>';
     }).join('');
@@ -4681,6 +4682,70 @@
   ];
   var _activeGb = 'beach-retreat';
 
+  var _gbContent = {
+    'beach-retreat':     { host:'Catalin',  email:'catalin@touchstay.com',  checkin:'3:00 PM',  checkout:'11:00 AM', tags:['beach property rules','kitchen hardware'],       gradient:'linear-gradient(180deg,#a8d4f5 0%,#3d7fa0 38%,#2e7a6a 60%,#6ab556 100%)', accent:'#14b8a8' },
+    'mountain-lodge':    { host:'Sarah',    email:'sarah@mountain.com',      checkin:'4:00 PM',  checkout:'10:00 AM', tags:['cabin essentials','fireplace guide'],            gradient:'linear-gradient(180deg,#fde68a 0%,#d97706 35%,#92400e 65%,#3d2a1a 100%)', accent:'#d97706' },
+    'city-apartment':    { host:'Marcus',   email:'marcus@cityapt.com',      checkin:'3:00 PM',  checkout:'11:00 AM', tags:['kitchen hardware','transport guide'],            gradient:'linear-gradient(180deg,#bfdbfe 0%,#3b82f6 40%,#1e40af 100%)',             accent:'#3b82f6' },
+    'bucharest-apt':     { host:'Andrei',   email:'andrei@touchstay.com',    checkin:'2:00 PM',  checkout:'12:00 PM', tags:['access codes','bucharest essentials'],           gradient:'linear-gradient(180deg,#ede9fe 0%,#7c3aed 45%,#4c1d95 100%)',             accent:'#7c3aed' },
+    'edinburgh-cottage': { host:'Fiona',    email:'fiona@cottage.co.uk',     checkin:'4:00 PM',  checkout:'10:00 AM', tags:['house rules','local attractions'],               gradient:'linear-gradient(180deg,#f1f5f9 0%,#94a3b8 40%,#334155 100%)',             accent:'#64748b' },
+    'marbella-villa':    { host:'Catalin',  email:'catalin@touchstay.com',   checkin:'3:00 PM',  checkout:'11:00 AM', tags:['pool rules','beach property rules'],             gradient:'linear-gradient(180deg,#fef9c3 0%,#fbbf24 30%,#b45309 65%,#7c2d12 100%)',accent:'#f59e0b' },
+    'tokyo-studio':      { host:'Yuki',     email:'yuki@touchstay.jp',       checkin:'3:00 PM',  checkout:'11:00 AM', tags:['house rules','tokyo transport'],                 gradient:'linear-gradient(180deg,#ffe4e6 0%,#f43f5e 40%,#9f1239 100%)',             accent:'#f43f5e' },
+    'lisbon-suite':      { host:'Miguel',   email:'miguel@lisbon.pt',         checkin:'2:00 PM',  checkout:'12:00 PM', tags:['kitchen hardware','transport guide'],            gradient:'linear-gradient(180deg,#dbeafe 0%,#2563eb 40%,#1e3a8a 100%)',             accent:'#2563eb' }
+  };
+
+  function syncGbContent(id) {
+    var gb = _guidebooks.find(function(g){ return g.id===id; });
+    var d  = _gbContent[id];
+    if (!gb || !d) return;
+
+    // 1 — tags bar
+    var tagsEl = document.getElementById('gb-tags-bar-list');
+    if (tagsEl) {
+      var nameChip = '<span class="tag tag-gb" style="cursor:default;" title="Default — cannot be removed">' + gb.name + '</span>';
+      var sharedChips = d.tags.map(function(t){
+        return '<span class="tag tag-sh tag-removable" onclick="confirmRemoveTag(\'' + t.replace(/'/g,"\\'") + '\')" title="Click to remove">' + t + ' ✕</span>';
+      }).join('');
+      tagsEl.innerHTML = nameChip + sharedChips;
+    }
+
+    // 2 — phone preview in Guidebook Content screen
+    var screen = document.getElementById('screen-content');
+    if (screen) {
+      var bg = screen.querySelector('.phone-bg');
+      if (bg) bg.style.background = d.gradient;
+
+      var logoCircle = screen.querySelector('.phone-logo-circle');
+      if (logoCircle) logoCircle.style.background = d.accent;
+
+      var hostEl = screen.querySelector('.phone-host-name');
+      if (hostEl) hostEl.textContent = d.host;
+
+      var emailEl = screen.querySelector('.phone-email-row');
+      if (emailEl) {
+        var svg = emailEl.querySelector('svg');
+        emailEl.textContent = d.email;
+        if (svg) emailEl.insertBefore(svg, emailEl.firstChild);
+      }
+
+      var gbNameEl = screen.querySelector('.phone-gb-name');
+      if (gbNameEl) gbNameEl.textContent = gb.name;
+
+      var times = screen.querySelectorAll('.phone-times-value');
+      if (times[0]) times[0].textContent = d.checkin;
+      if (times[1]) times[1].textContent = d.checkout;
+
+      // 3 — tag-gb chips on topic rows (the per-guidebook pill)
+      screen.querySelectorAll('.tag-gb').forEach(function(chip){
+        if (!chip.hasAttribute('style') || !chip.style.cursor) chip.textContent = gb.name;
+      });
+    }
+
+    // 4 — gb-selector-bar label (Property Info, Appearance, Settings screens)
+    document.querySelectorAll('.gb-selector-bar span[style*="font-weight:600"]').forEach(function(el){
+      el.textContent = gb.name;
+    });
+  }
+
   function renderGbList(filter) {
     var list = document.getElementById('gb-list');
     var q = (filter || '').toLowerCase();
@@ -4720,8 +4785,7 @@
     document.getElementById('gb-selector-thumb').style.background = gb.color;
     document.getElementById('gb-dropdown').classList.remove('open');
     document.getElementById('gb-selector').classList.remove('open');
-    // Sync the gb-selector-bars on settings screens
-    document.querySelectorAll('.gb-selector-bar span[style*="font-weight:600"]').forEach(function(el){ el.textContent = gb.name; });
+    syncGbContent(id);
     showToast('Switched to ' + gb.name);
   }
 
@@ -4734,10 +4798,11 @@
     }
   });
 
-  // Init thumb colour
+  // Init thumb colour + sync content
   (function(){
     var gb = _guidebooks.find(function(g){ return g.id===_activeGb; });
     if (gb) document.getElementById('gb-selector-thumb').style.background = gb.color;
+    syncGbContent(_activeGb);
   })();
   // ─── End Guidebook Selector ───────────────────────────────
 
