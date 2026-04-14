@@ -1769,17 +1769,6 @@
       <h1 class="page-title">Content Hub</h1>
 
       <!-- Merge suggestion banner -->
-      <div class="merge-banner" id="merge-banner">
-        <div class="merge-banner-icon">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17 20.41L18.41 19 15 15.59 13.59 17 17 20.41zM7.5 8H11v5.59L5.59 19 7 20.41l6-6V8h3.5L12 3.5 7.5 8z"/></svg>
-        </div>
-        <span>Do you want me to help you with content clutter?</span>
-        <div class="merge-banner-actions">
-          <button class="merge-banner-btn-later" onclick="dismissMergeBanner()">Later</button>
-          <button class="merge-banner-btn-yes" onclick="openMergeModal()">Yes</button>
-        </div>
-        <button class="merge-banner-close" onclick="dismissMergeBanner()">×</button>
-      </div>
 
       <!-- Tab navigation -->
       <div class="hub-tabs">
@@ -4182,44 +4171,40 @@
     if (_editingTopicRow) {
       var name = _editingTopicRow.querySelector('.topic-name').textContent.trim();
       topicTags[name] = newTags;
-      renderAllTopicRowsByName(name);
+      renderTopicRowTags(_editingTopicRow, newTags, getTopicGuidebooks(name));
+      // Also sync any other rows that share the same data-topic (genuinely shared library topics)
+      var topicAttr = _editingTopicRow.getAttribute('data-topic');
+      if (topicAttr) {
+        document.querySelectorAll('.topic-row[data-topic="' + CSS.escape(topicAttr) + '"]').forEach(function(row) {
+          if (row !== _editingTopicRow) renderTopicRow(name);
+        });
+      }
       renderGuidebookTags();
     }
     closeTopicEditModal();
     toast('✓ Visibility saved');
   }
 
-  /* Update every topic row in the document that matches a given name —
-     handles both static rows (data-topic) and dynamically generated hub rows */
-  function renderAllTopicRowsByName(name) {
-    var tags = topicTags[name] || [];
-    var gbs  = getTopicGuidebooks(name);
-
-    document.querySelectorAll('.topic-row').forEach(function(row) {
-      var nameEl = row.querySelector('.topic-name');
-      if (!nameEl || nameEl.textContent.trim() !== name) return;
-
-      // Always update the tags column
-      var tagsEl = row.querySelector('.topic-tags');
-      if (tagsEl) {
-        tagsEl.innerHTML = tags.length
-          ? tags.map(function(t) { return '<span class="tag tag-sh">' + t + '</span>'; }).join('')
-          : '';
+  /* Update the tags + guidebooks columns of a single topic row directly */
+  function renderTopicRowTags(row, tags, gbs) {
+    var tagsEl = row.querySelector('.topic-tags');
+    if (tagsEl) {
+      tagsEl.innerHTML = tags.length
+        ? tags.map(function(t) { return '<span class="tag tag-sh">' + t + '</span>'; }).join('')
+        : '';
+    }
+    // Only update guidebooks column for rows that derive their gb list from tags (data-topic rows)
+    if (row.hasAttribute('data-topic')) {
+      var gbsEl = row.querySelector('.topic-gbs');
+      if (gbsEl) {
+        gbsEl.innerHTML = gbs.length
+          ? gbs.map(function(gb) {
+              return '<span class="gb-dot-mini" style="background:' + (GB_COLORS[gb] || '#14b8a8') + '"></span>'
+                   + '<span class="gb-name-mini">' + gb + '</span>';
+            }).join('<span class="topic-meta-sep" style="margin:0 2px">·</span>')
+          : '<span class="topic-no-gbs">No guidebooks</span>';
       }
-
-      // Update guidebooks column only on rows that use tag-derived gb list (data-topic rows)
-      if (row.hasAttribute('data-topic')) {
-        var gbsEl = row.querySelector('.topic-gbs');
-        if (gbsEl) {
-          gbsEl.innerHTML = gbs.length
-            ? gbs.map(function(gb) {
-                return '<span class="gb-dot-mini" style="background:' + (GB_COLORS[gb] || '#14b8a8') + '"></span>'
-                     + '<span class="gb-name-mini">' + gb + '</span>';
-              }).join('<span class="topic-meta-sep" style="margin:0 2px">·</span>')
-            : '<span class="topic-no-gbs">No guidebooks</span>';
-        }
-      }
-    });
+    }
   }
 
   /* ══════════════════════════════════════
