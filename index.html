@@ -1895,6 +1895,7 @@
             </div>
           </div>
 
+          <div id="hub-dynamic-sections"></div>
         </div><!-- /cat-tree -->
         <button class="add-cat-btn" onclick="startAddCategory(this)">
           <svg width="14" height="14" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"/></svg>
@@ -4933,6 +4934,40 @@
     }
   });
 
+  function renderHubDynamicSections() {
+    var container = document.getElementById('hub-dynamic-sections');
+    if (!container) return;
+    var html = '';
+    _guidebooks.forEach(function(gb) {
+      var d = _gbContent[gb.id];
+      if (!d || !d.topics || !d.topics.length) return;
+      var topicRows = d.topics.map(function(t) {
+        return '<div class="topic-row" data-topic="' + t.name + '" onclick="openTopicEditModal(this)">' +
+          '<div class="topic-thumb" style="background:' + t.g + '">' + t.icon + '</div>' +
+          '<span class="topic-name">' + t.name + '</span>' +
+          '<div class="topic-tags"></div>' +
+          '<div class="topic-gbs"><span style="font-size:12px;color:#475569;font-weight:500;">● ' + gb.name + '</span></div>' +
+        '</div>';
+      }).join('');
+      html +=
+        '<div class="cat-row" onclick="toggleCat(this)">' +
+          '<span class="cat-icon">' + d.icon + '</span>' +
+          '<span class="cat-name">' + d.section + ' — ' + gb.name + '</span>' +
+          '<span class="chevron">▾</span>' +
+        '</div>' +
+        '<div class="cat-body">' +
+          '<div class="subcat-row" onclick="selectSubcat(this)">' +
+            '<span class="subcat-arrow">↳</span>' +
+            '<span class="subcat-name">Highlights</span>' +
+          '</div>' +
+          topicRows +
+        '</div>';
+    });
+    container.innerHTML = html;
+    if (typeof initKebabButtons === 'function') initKebabButtons();
+    if (typeof initDragDrop === 'function') initDragDrop();
+  }
+
   // Init thumb colour + sync content
   (function(){
     var gb = _guidebooks.find(function(g){ return g.id===_activeGb; });
@@ -4941,6 +4976,7 @@
       document.querySelectorAll('.gb-selector-bar-thumb').forEach(function(el){ el.style.background = gb.color; });
     }
     syncGbContent(_activeGb);
+    renderHubDynamicSections();
   })();
   var _screenGbKeys = ['prop-info','appearance','settings'];
 
