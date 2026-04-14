@@ -142,54 +142,92 @@
     }
 
     .phone-wrap {
-      width: 218px;
-      border-radius: 22px;
-      border: 1.5px solid var(--grey-border);
+      width: 230px;
+      border-radius: 24px;
       overflow: hidden;
-      box-shadow: 0 6px 24px rgba(0,0,0,0.09);
-      margin-bottom: 16px;
-    }
-    .phone-bar {
-      background: var(--teal-dark);
-      padding: 10px 12px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    .phone-avatar-sm {
-      width: 27px; height: 27px; border-radius: 50%;
-      background: #c7d2fe; border: 2px solid rgba(255,255,255,0.6);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.22);
+      margin-bottom: 12px;
       flex-shrink: 0;
     }
-    .phone-body { background: white; }
-    .phone-section { padding: 10px 11px; }
-    .phone-section + .phone-section { border-top: 1px solid #f1f5f9; }
-    .phone-section-head {
-      font-size: 12.5px; font-weight: 700; color: var(--navy);
-      display: flex; justify-content: space-between; align-items: center;
+    .phone-bg {
+      background: linear-gradient(180deg,
+        #a8d4f5 0%, #7db8e8 12%, #5b9ecf 22%,
+        #4a8fb8 30%, #3d7fa0 38%,
+        #2e7a6a 48%, #3a8b6a 56%,
+        #4d9a60 66%, #5ea85a 76%,
+        #6ab556 88%, #72bc52 100%);
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      min-height: 430px;
+    }
+    .phone-globe {
+      position: absolute; top: 9px; right: 9px;
+      width: 26px; height: 26px; border-radius: 50%;
+      background: #14b8a8;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .phone-center {
+      flex: 1;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      padding: 40px 16px 16px;
+      gap: 5px;
+      text-align: center;
+    }
+    .phone-logo-circle {
+      width: 54px; height: 54px; border-radius: 50%;
+      background: #1e293b;
+      border: 2.5px solid rgba(255,255,255,0.25);
+      display: flex; align-items: center; justify-content: center;
       margin-bottom: 6px;
     }
-    .phone-img {
-      width: 100%; height: 72px; border-radius: 5px;
-      background: linear-gradient(135deg, #fde68a, #f97316);
-      display: flex; align-items: center; justify-content: center;
-      font-size: 26px; margin-bottom: 7px;
+    .phone-host-name {
+      font-size: 17px; font-weight: 600; color: #fff; letter-spacing: 0.01em;
     }
-    .phone-text { font-size: 10.5px; color: #374151; line-height: 1.45; margin-bottom: 6px; }
+    .phone-email-row {
+      display: flex; align-items: center; gap: 4px;
+      font-size: 10.5px; color: #14b8a8; font-weight: 500;
+    }
+    .phone-gb-name {
+      font-size: 14px; font-style: italic; font-weight: 500; color: #fff;
+    }
+    .phone-get-started {
+      margin-top: 7px;
+      border: 1.5px solid #14b8a8; color: #14b8a8;
+      background: transparent; border-radius: 4px;
+      padding: 5px 20px;
+      font-size: 10px; font-weight: 700; letter-spacing: 0.08em;
+      text-transform: uppercase; cursor: pointer; font-family: inherit;
+    }
+    .phone-times-bar {
+      background: rgba(10,18,32,0.60);
+      display: flex; padding: 9px 18px; gap: 0;
+    }
+    .phone-times-col {
+      flex: 1; display: flex; flex-direction: column; gap: 2px;
+    }
+    .phone-times-label {
+      font-size: 7.5px; color: rgba(255,255,255,0.55); font-weight: 400;
+    }
+    .phone-times-value {
+      font-size: 12px; font-weight: 700; color: #fff;
+    }
     .phone-nav {
-      background: #1e293b;
+      background: #141e2e;
       display: flex; justify-content: space-around;
       padding: 7px 0 5px;
     }
     .phone-nav-btn {
       display: flex; flex-direction: column; align-items: center; gap: 2px;
-      cursor: pointer;
+      cursor: pointer; min-width: 40px;
     }
+    .phone-nav-icon { color: rgba(255,255,255,0.45); }
+    .phone-nav-btn.active .phone-nav-icon { color: #14b8a8; }
     .phone-nav-label {
-      font-size: 8.5px; color: rgba(255,255,255,0.6); font-weight: 700;
-      letter-spacing: 0.04em;
+      font-size: 7px; color: rgba(255,255,255,0.45); font-weight: 700;
+      letter-spacing: 0.04em; text-transform: uppercase;
     }
-    .phone-nav-btn.active .phone-nav-label { color: var(--teal); }
+    .phone-nav-btn.active .phone-nav-label { color: #14b8a8; }
 
     .btn-share-link {
       width: 100%;
@@ -201,8 +239,22 @@
       font-size: 12.5px; font-weight: 700;
       cursor: pointer;
       display: flex; align-items: center; justify-content: center; gap: 6px;
-      margin-bottom: 16px;
+      margin-bottom: 8px;
     }
+    .btn-desk-preview {
+      width: 100%;
+      background: white;
+      color: var(--navy);
+      border: 1.5px solid var(--grey-border);
+      border-radius: 8px;
+      padding: 9px;
+      font-size: 12.5px; font-weight: 600;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+      margin-bottom: 16px;
+      font-family: inherit;
+    }
+    .btn-desk-preview:hover { border-color: var(--teal); color: var(--teal-dark); background: #f0fdfa; }
 
     /* ─── CONTENT AREA ────────────────────────────── */
     .content-area {
@@ -571,15 +623,18 @@
     .btn-danger:hover { background: #dc2626; }
 
     /* ─── INLINE ADD BUTTONS ──────────────────────── */
-    .add-inline-btns { display: flex; gap: 6px; padding: 7px 0 3px; }
+    .add-inline-btns { display: flex; padding: 0; }
     .add-inline-btn {
-      flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px;
-      padding: 7px 10px; border: 1.5px dashed var(--grey-border); border-radius: 7px;
-      color: var(--grey-text); font-size: 12px; font-weight: 500; cursor: pointer;
-      background: none; font-family: inherit;
-      transition: border-color 0.15s, color 0.15s, background 0.15s;
+      display: flex; align-items: center; gap: 6px;
+      padding: 6px 13px 6px 34px;
+      font-size: 12px; font-weight: 500; color: var(--teal-dark);
+      cursor: pointer; border-radius: 0; width: 100%;
+      border-bottom: 1px solid var(--grey-border);
+      border-top: 0; border-left: 0; border-right: 0;
+      background: #f8fffe; font-family: inherit;
+      transition: background 0.12s;
     }
-    .add-inline-btn:hover { border-color: var(--teal); color: var(--teal-dark); background: #f0fdfa; }
+    .add-inline-btn:hover { background: #e6fffd; }
     .add-cat-btn {
       display: flex; align-items: center; justify-content: center; gap: 7px;
       width: 100%; padding: 10px; margin-top: 8px;
@@ -821,6 +876,65 @@
     .share-action-title { font-size: 13.5px; font-weight: 600; color: var(--navy); margin-bottom: 2px; }
     .share-action-desc  { font-size: 12px; color: var(--grey-text); }
 
+    /* ─── INVITATION MODAL ───────────────────────── */
+    .inv-section { padding: 20px 0; border-bottom: 1px solid var(--grey-border); }
+    .inv-section:last-child { border-bottom: none; }
+    .inv-section-title { font-size: 16px; font-weight: 700; color: var(--navy); margin-bottom: 14px; }
+    .inv-field-label { font-size: 12px; font-weight: 500; color: #475569; margin-bottom: 6px; }
+    .inv-search-row {
+      display: flex; align-items: center; gap: 10px;
+    }
+    .inv-search-input {
+      flex: 1; display: flex; align-items: center; gap: 8px;
+      border: 1.5px solid var(--grey-border); border-radius: 8px;
+      padding: 9px 12px; font-size: 13px; color: #94a3b8;
+    }
+    .inv-search-input input {
+      border: none; outline: none; flex: 1; font-size: 13px;
+      color: var(--navy); font-family: inherit; background: transparent;
+    }
+    .inv-search-input input::placeholder { color: #94a3b8; }
+    .inv-or { font-size: 12px; color: #94a3b8; font-weight: 600; flex-shrink: 0; }
+    .inv-btn-new-contact {
+      background: var(--navy); color: white; border: none; border-radius: 8px;
+      padding: 9px 16px; font-size: 13px; font-weight: 600; cursor: pointer;
+      font-family: inherit; white-space: nowrap;
+    }
+    .inv-select-row {
+      display: flex; align-items: center; gap: 8px;
+      border: 1.5px solid var(--grey-border); border-radius: 8px;
+      padding: 9px 12px; font-size: 13px; color: #94a3b8; cursor: pointer;
+    }
+    .inv-select-row svg { flex-shrink: 0; color: #94a3b8; }
+    .inv-select-row span { flex: 1; }
+    .inv-dates-row {
+      display: flex; gap: 14px;
+    }
+    .inv-date-col { flex: 1; }
+    .inv-date-field {
+      display: flex; align-items: center; gap: 0;
+      border: 1.5px solid var(--grey-border); border-radius: 8px;
+      overflow: hidden; font-size: 13px;
+    }
+    .inv-date-input {
+      flex: 1; display: flex; align-items: center; gap: 7px;
+      padding: 9px 10px; color: #94a3b8; border-right: 1px solid var(--grey-border);
+    }
+    .inv-time-select {
+      display: flex; align-items: center; gap: 6px;
+      padding: 9px 10px; color: var(--navy); cursor: pointer;
+    }
+    .inv-section-collapsed {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 18px 0 0;
+    }
+    .inv-section-collapsed-title { font-size: 15px; font-weight: 700; color: var(--navy); }
+    .inv-show-more {
+      background: var(--grey-mid); border: none; border-radius: 7px;
+      padding: 7px 14px; font-size: 12.5px; font-weight: 600;
+      color: var(--navy); cursor: pointer; font-family: inherit;
+    }
+
     /* ─── SLIDE-IN ANIMATION ──────────────────────── */
     @keyframes slideInTopic {
       from { opacity: 0; transform: translateY(-8px); background: #e6fffd; }
@@ -871,7 +985,7 @@
 
     <div class="nav-item active" id="nav-content" onclick="goScreen('content')">
       <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 015.5 14c1.255 0 2.443.29 3.5.804V4.804zM11 4.804A7.968 7.968 0 0114.5 4c1.255 0 2.443.29 3.5.804v10a7.969 7.969 0 01-3.5-.804V4.804z"/></svg>
-      Content
+      Guidebook Content
     </div>
 
     <div class="nav-item">
@@ -889,13 +1003,13 @@
 
     <div class="nav-item" style="position: relative;">
       <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zm0 6a1 1 0 011-1h12a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6z"/></svg>
-      Properties
+      Guides
       <span style="position: absolute; right: 16px; font-size: 11px; background: #cbd5e1; color: #475569; padding: 1px 6px; border-radius: 10px; font-weight: 600;">2</span>
     </div>
 
     <div class="nav-item" id="nav-hub" onclick="goScreen('hub')">
       <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/><path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z"/></svg>
-      Shared content
+      Content Hub
     </div>
 
     <div class="nav-item">
@@ -928,7 +1042,7 @@
     <div class="user-row">
       <div class="user-avatar">JC</div>
       <div>
-        <div class="user-name">Short term rental</div>
+        <div class="user-name">John Claude</div>
       </div>
     </div>
   </div>
@@ -942,7 +1056,7 @@
     <div class="content-area">
 
       <div class="content-scroll">
-        <h1 class="page-title" style="padding: 26px 26px 0">Content</h1>
+        <h1 class="page-title" style="padding: 26px 26px 0">Guidebook Content</h1>
 
         <div class="gb-tags-bar">
           <span class="gb-tags-bar-label">Tags in this guidebook:</span>
@@ -1023,40 +1137,76 @@
     <!-- Right preview panel -->
     <div class="preview-panel">
       <div class="phone-wrap">
-        <div class="phone-bar">
-          <div class="phone-avatar-sm"></div>
-        </div>
-        <div style="padding:9px 11px;border-bottom:1px solid #f1f5f9">
-          <div style="font-size:13px;font-weight:700;color:#1e293b">Welcome</div>
-        </div>
-        <div class="phone-body">
-          <div class="phone-section">
-            <div class="phone-section-head">Welcome</div>
-            <div class="phone-img">🍱</div>
-            <div class="phone-text">We are located in a friendly and welcoming community and, although this is a holiday destination, it's home to other people.</div>
+        <div class="phone-bg">
+          <!-- Globe icon -->
+          <div class="phone-globe">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="white">
+              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/>
+            </svg>
+          </div>
+          <!-- Center content -->
+          <div class="phone-center">
+            <div class="phone-logo-circle">
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="#14b8a8">
+                <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+              </svg>
+            </div>
+            <div class="phone-host-name">Catalin</div>
+            <div class="phone-email-row">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+              catalin@touchstay.com
+            </div>
+            <div class="phone-gb-name">Beach Retreat Villa</div>
+            <button class="phone-get-started">Get Started</button>
+          </div>
+          <!-- Times bar -->
+          <div class="phone-times-bar">
+            <div class="phone-times-col">
+              <div class="phone-times-label">Check-in after</div>
+              <div class="phone-times-value">3:00 PM</div>
+            </div>
+            <div class="phone-times-col" style="text-align:right">
+              <div class="phone-times-label">Check-out before</div>
+              <div class="phone-times-value">10:00 AM</div>
+            </div>
           </div>
         </div>
+        <!-- Bottom nav -->
         <div class="phone-nav">
           <div class="phone-nav-btn active">
-            <span class="phone-nav-label">HOME</span>
+            <svg class="phone-nav-icon" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+            <span class="phone-nav-label">Home</span>
           </div>
           <div class="phone-nav-btn">
-            <span class="phone-nav-label">INFO</span>
+            <svg class="phone-nav-icon" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+            <span class="phone-nav-label">Info</span>
           </div>
           <div class="phone-nav-btn">
-            <span class="phone-nav-label">MAP</span>
+            <svg class="phone-nav-icon" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+            <span class="phone-nav-label">Map</span>
+          </div>
+          <div class="phone-nav-btn">
+            <svg class="phone-nav-icon" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+            <span class="phone-nav-label">Search</span>
           </div>
         </div>
       </div>
 
-      <button class="btn-share-link" onclick="openShareModal()">Quick share link</button>
+      <button class="btn-share-link" onclick="openShareModal()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92c0-1.61-1.31-2.92-2.92-2.92z"/></svg>
+        Quick share link
+      </button>
+      <button class="btn-desk-preview" onclick="openDesktopPreview()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M21 2H3c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h7l-2 3v1h8v-1l-2-3h7c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 12H3V4h18v10z"/></svg>
+        Desktop Preview
+      </button>
     </div>
   </div>
 
   <!-- ══════════ SCREEN: SHARED CONTENT HUB ══════════ -->
   <div id="screen-hub" class="screen">
     <div class="content-area">
-      <h1 class="page-title">Shared content</h1>
+      <h1 class="page-title">Content Hub</h1>
 
       <!-- Tab navigation -->
       <div class="hub-tabs">
@@ -1434,7 +1584,7 @@
           <svg style="margin-left:auto;color:#cbd5e1" width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
         </div>
 
-        <div class="share-action-card" onclick="toast('✓ Invitation created'); closeShareModal();">
+        <div class="share-action-card" onclick="closeShareModal(); openInvitationModal();">
           <div class="share-action-icon" style="background:#ede9fe;color:#7c3aed;">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
               <path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>
@@ -1451,6 +1601,88 @@
     </div>
     <div class="modal-foot">
       <button class="btn-cancel" onclick="closeShareModal()">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════ NEW INVITATION MODAL ══════ -->
+<div class="modal-overlay" id="invitation-modal">
+  <div class="modal" style="width:520px;max-height:90vh;overflow-y:auto;">
+    <div class="modal-head">
+      <div class="modal-title">New Invitation</div>
+      <span class="modal-close" onclick="closeInvitationModal()">×</span>
+    </div>
+    <div class="modal-body" style="padding-top:0;">
+
+      <!-- Guest section -->
+      <div class="inv-section">
+        <div class="inv-section-title">Guest</div>
+        <div class="inv-field-label">Invite existing contact</div>
+        <div class="inv-search-row">
+          <div class="inv-search-input">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="text" placeholder="Search by a name or a phone number of a guest…">
+          </div>
+          <span class="inv-or">OR</span>
+          <button class="inv-btn-new-contact">Invite new contact</button>
+        </div>
+      </div>
+
+      <!-- Guide / Property section -->
+      <div class="inv-section">
+        <div class="inv-section-title">Guide / Property</div>
+        <div class="inv-select-row">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="color:#94a3b8"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+          <span>Select the guide…</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="color:#94a3b8"><path d="M7 10l5 5 5-5z"/></svg>
+        </div>
+      </div>
+
+      <!-- Arrival & departure section -->
+      <div class="inv-section">
+        <div class="inv-section-title">Arrival &amp; departure</div>
+        <div class="inv-dates-row">
+          <div class="inv-date-col">
+            <div class="inv-field-label">Check-in date and time</div>
+            <div class="inv-date-field">
+              <div class="inv-date-input">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                <span style="color:#94a3b8;font-size:13px;">Select date…</span>
+              </div>
+              <div class="inv-time-select">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#475569" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                <span style="font-size:13px;color:#1e293b;">15:00</span>
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" style="color:#94a3b8"><path d="M7 10l5 5 5-5z"/></svg>
+              </div>
+            </div>
+          </div>
+          <div class="inv-date-col">
+            <div class="inv-field-label">Check-out date and time</div>
+            <div class="inv-date-field">
+              <div class="inv-date-input">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                <span style="color:#94a3b8;font-size:13px;">Select date…</span>
+              </div>
+              <div class="inv-time-select">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#475569" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                <span style="font-size:13px;color:#1e293b;">10:00</span>
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" style="color:#94a3b8"><path d="M7 10l5 5 5-5z"/></svg>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Collapsed section -->
+      <div class="inv-section-collapsed">
+        <div class="inv-section-collapsed-title">Guide access, Booking source and Tags</div>
+        <button class="inv-show-more">Show more</button>
+      </div>
+
+    </div>
+    <div class="modal-foot">
+      <button class="btn-cancel" onclick="closeInvitationModal()">Cancel</button>
+      <button class="btn-primary" onclick="toast('✓ Invitation created'); closeInvitationModal();">Next</button>
     </div>
   </div>
 </div>
@@ -1644,17 +1876,14 @@
     document.getElementById('topic-edit-modal').classList.add('open');
   }
 
-  // Inject Add Topic / Add Subcategory buttons into every cat-body that doesn't have them yet
+  // Inject Add Subcategory button into every cat-body that doesn't have one yet
   function initCatAddButtons() {
     document.querySelectorAll('#screen-content .cat-body').forEach(function(body) {
       if (!body.querySelector('.add-inline-btns')) {
         var btns = document.createElement('div');
         btns.className = 'add-inline-btns';
         btns.innerHTML =
-          '<button class="add-inline-btn" onclick="startAddTopic(this.closest(\'.cat-body\'))">'
-          + '<svg width="12" height="12" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"/></svg>'
-          + ' Add Topic</button>'
-          + '<button class="add-inline-btn" onclick="startAddSubcat(this.closest(\'.cat-body\'))">'
+          '<button class="add-inline-btn" onclick="startAddSubcat(this.closest(\'.cat-body\'))">'
           + '<svg width="12" height="12" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"/></svg>'
           + ' Add Subcategory</button>';
         body.appendChild(btns);
@@ -2357,6 +2586,66 @@
   /* ── SHARE MODAL ── */
   function openShareModal()  { document.getElementById('share-modal').classList.add('open'); }
   function closeShareModal() { document.getElementById('share-modal').classList.remove('open'); }
+
+  /* ── INVITATION MODAL ── */
+  function openInvitationModal()  { document.getElementById('invitation-modal').classList.add('open'); }
+  function closeInvitationModal() { document.getElementById('invitation-modal').classList.remove('open'); }
+
+  /* ── DESKTOP PREVIEW ── */
+  function openDesktopPreview() {
+    var html = '<!DOCTYPE html><html><head><meta charset="utf-8"><title>Beach Retreat Villa — Guest Preview</title>'
+      + '<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">'
+      + '<style>'
+      + 'body,html{margin:0;padding:0;height:100%;font-family:Inter,sans-serif;}'
+      + '.wrap{'
+      + '  min-height:100vh;'
+      + '  background:linear-gradient(180deg,#a8d4f5 0%,#7db8e8 10%,#5b9ecf 20%,#4a8fb8 28%,#3d7fa0 36%,#2e7a6a 46%,#3a8b6a 55%,#4d9a60 66%,#5ea85a 76%,#6ab556 88%,#72bc52 100%);'
+      + '  display:flex;flex-direction:column;position:relative;overflow:hidden;'
+      + '}'
+      + '.globe{position:absolute;top:16px;right:16px;width:38px;height:38px;border-radius:50%;background:#14b8a8;display:flex;align-items:center;justify-content:center;cursor:pointer;}'
+      + '.center{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;text-align:center;padding:60px 20px 20px;}'
+      + '.logo-circle{width:90px;height:90px;border-radius:50%;background:#1e293b;border:3px solid rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;margin-bottom:12px;}'
+      + '.host-name{font-size:32px;font-weight:600;color:#fff;}'
+      + '.email-row{display:flex;align-items:center;gap:8px;font-size:15px;color:#14b8a8;font-weight:500;}'
+      + '.gb-name{font-size:22px;font-style:italic;font-weight:500;color:#fff;}'
+      + '.get-started{margin-top:12px;border:2px solid #14b8a8;color:#14b8a8;background:transparent;border-radius:6px;padding:10px 36px;font-size:14px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;font-family:inherit;}'
+      + '.times-bar{background:rgba(10,18,32,0.6);display:flex;padding:16px 80px;}'
+      + '.times-col{flex:1;display:flex;flex-direction:column;gap:4px;}'
+      + '.times-col:last-child{text-align:right;}'
+      + '.times-label{font-size:11px;color:rgba(255,255,255,0.55);font-weight:400;}'
+      + '.times-value{font-size:18px;font-weight:700;color:#fff;}'
+      + '.nav{background:#141e2e;display:flex;justify-content:center;gap:0;padding:12px 0 10px;}'
+      + '.nav-btn{display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;min-width:90px;}'
+      + '.nav-icon{color:rgba(255,255,255,0.45);}'
+      + '.nav-btn.active .nav-icon{color:#14b8a8;}'
+      + '.nav-label{font-size:10px;color:rgba(255,255,255,0.45);font-weight:700;letter-spacing:0.06em;text-transform:uppercase;}'
+      + '.nav-btn.active .nav-label{color:#14b8a8;}'
+      + '</style></head><body>'
+      + '<div class="wrap">'
+      + '<div class="globe"><svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg></div>'
+      + '<div class="center">'
+      + '<div class="logo-circle"><svg width="46" height="46" viewBox="0 0 24 24" fill="#14b8a8"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg></div>'
+      + '<div class="host-name">Catalin</div>'
+      + '<div class="email-row"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>catalin@touchstay.com</div>'
+      + '<div class="gb-name">Beach Retreat Villa</div>'
+      + '<button class="get-started">Get Started</button>'
+      + '</div>'
+      + '<div class="times-bar">'
+      + '<div class="times-col"><div class="times-label">Check-in after</div><div class="times-value">3:00 PM</div></div>'
+      + '<div class="times-col"><div class="times-label">Check-out before</div><div class="times-value">10:00 AM</div></div>'
+      + '</div>'
+      + '<div class="nav">'
+      + '<div class="nav-btn active"><svg class="nav-icon" width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg><span class="nav-label">Home</span></div>'
+      + '<div class="nav-btn"><svg class="nav-icon" width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg><span class="nav-label">Info</span></div>'
+      + '<div class="nav-btn"><svg class="nav-icon" width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg><span class="nav-label">Map</span></div>'
+      + '<div class="nav-btn"><svg class="nav-icon" width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg><span class="nav-label">Search</span></div>'
+      + '</div>'
+      + '</div>'
+      + '</body></html>';
+    var w = window.open('', '_blank');
+    w.document.write(html);
+    w.document.close();
+  }
   function copyShareLink() {
     navigator.clipboard && navigator.clipboard.writeText('https://guide.touchstay.com/guest/bOBugbT8aYG6U/');
     toast('✓ Link copied to clipboard');
