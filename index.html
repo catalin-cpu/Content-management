@@ -290,11 +290,22 @@
 
     .subcat-row {
       display: flex; align-items: center; gap: 7px;
-      padding: 9px 13px 9px 34px;
+      padding: 9px 13px 9px 34px; cursor: pointer;
       cursor: pointer;
       border-bottom: 1px solid var(--grey-border);
     }
-    .subcat-row:hover { background: #fafbfc; }
+    .subcat-row:hover { background: #f0fdfa; }
+    .subcat-row.active { background: var(--teal-bg); color: var(--teal-dark); }
+    .subcat-row.active .subcat-arrow { color: var(--teal); }
+    .subcat-add-topic {
+      display: flex; align-items: center; gap: 6px;
+      padding: 6px 13px 6px 44px;
+      font-size: 12px; font-weight: 500; color: var(--teal-dark);
+      cursor: pointer; border-radius: 0;
+      border-bottom: 1px solid var(--grey-border);
+      background: #f8fffe;
+    }
+    .subcat-add-topic:hover { background: #e6fffd; }
     .subcat-row:last-child { border-bottom: none; }
     .subcat-arrow { font-size: 10px; color: #94a3b8; margin-right: 2px; }
     .subcat-name { font-size: 13.5px; font-weight: 500; flex: 1; color: var(--navy); }
@@ -945,7 +956,7 @@
             <span class="chevron open">▾</span>
           </div>
           <div class="cat-body open">
-            <div class="subcat-row">
+            <div class="subcat-row" onclick="selectSubcat(this)">
               <span class="subcat-arrow">↳</span>
               <span class="subcat-name">Welcome</span>
             </div>
@@ -963,7 +974,7 @@
                 <div class="topic-meta"><span class="tag tag-sh">kitchen hardware</span></div>
               </div>
             </div>
-            <div class="subcat-row" style="margin-top:8px">
+            <div class="subcat-row" style="margin-top:8px" onclick="selectSubcat(this)">
               <span class="subcat-arrow">↳</span>
               <span class="subcat-name">About us</span>
             </div>
@@ -1580,6 +1591,58 @@
     'linear-gradient(135deg,#f0fdf4,#22c55e)',
   ];
   var _createTargetCatBody = null;
+  var _createInsertBefore  = null; // specific insertion point when adding inside a subcat
+  var _activeSubcat        = null;
+
+  function selectSubcat(subcatRow) {
+    // Toggle off if clicking the same one
+    if (_activeSubcat === subcatRow) {
+      subcatRow.classList.remove('active');
+      if (subcatRow._addTopicBtn) { subcatRow._addTopicBtn.remove(); subcatRow._addTopicBtn = null; }
+      _activeSubcat = null;
+      return;
+    }
+    // Deselect previous
+    if (_activeSubcat) {
+      _activeSubcat.classList.remove('active');
+      if (_activeSubcat._addTopicBtn) { _activeSubcat._addTopicBtn.remove(); _activeSubcat._addTopicBtn = null; }
+    }
+    subcatRow.classList.add('active');
+    _activeSubcat = subcatRow;
+
+    // Find the last topic-row in this subcat's group (consecutive topic-rows after it)
+    var lastInGroup = subcatRow;
+    var cursor = subcatRow.nextElementSibling;
+    while (cursor && cursor.classList.contains('topic-row')) {
+      lastInGroup = cursor;
+      cursor = cursor.nextElementSibling;
+    }
+
+    // Insert "Add Topic here" button after the last item in this group
+    var btn = document.createElement('div');
+    btn.className = 'subcat-add-topic';
+    btn.innerHTML =
+      '<svg width="11" height="11" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"/></svg>'
+      + ' Add Topic here';
+    btn.onclick = function(e) { e.stopPropagation(); startAddTopicInSubcat(subcatRow); };
+    subcatRow._addTopicBtn = btn;
+    lastInGroup.insertAdjacentElement('afterend', btn);
+  }
+
+  function startAddTopicInSubcat(subcatRow) {
+    _createTargetCatBody = subcatRow.closest('.cat-body');
+    _createInsertBefore  = subcatRow._addTopicBtn; // new topic inserts before this button
+    _editingTopicRow = null;
+    document.getElementById('tem-title-input').value = '';
+    document.getElementById('tem-content-body').innerHTML = '<p>Start writing your topic content here…</p>';
+    document.getElementById('tem-tags-chips').innerHTML = '';
+    _temCheckedTags = {};
+    Object.keys(tagGuidebooks).forEach(function(t) { _temCheckedTags[t] = false; });
+    _temDirectGuidebooks = { 'Beach Retreat Villa': true };
+    renderVisibilityTab();
+    switchTopicEditTab('content', document.querySelector('#topic-edit-modal .tem-section-tab'));
+    document.getElementById('topic-edit-modal').classList.add('open');
+  }
 
   // Inject Add Topic / Add Subcategory buttons into every cat-body that doesn't have them yet
   function initCatAddButtons() {
@@ -1599,9 +1662,16 @@
     });
   }
 
-  // ── Add Topic: open Edit Topic modal in create mode ──
+  // ── Add Topic: open Edit Topic modal in create mode (category-level) ──
   function startAddTopic(catBody) {
     _createTargetCatBody = catBody;
+    _createInsertBefore  = null; // category-level: insert before add-inline-btns
+    // Deselect any active subcat
+    if (_activeSubcat) {
+      _activeSubcat.classList.remove('active');
+      if (_activeSubcat._addTopicBtn) { _activeSubcat._addTopicBtn.remove(); _activeSubcat._addTopicBtn = null; }
+      _activeSubcat = null;
+    }
     _editingTopicRow = null;
     document.getElementById('tem-title-input').value = '';
     document.getElementById('tem-content-body').innerHTML =
@@ -1639,8 +1709,8 @@
         + '<span class="topic-name">' + title + '</span>'
         + '<div class="topic-meta"><span class="tag tag-gb">Beach Retreat Villa</span></div>'
         + '</div>';
-      var btns = _createTargetCatBody.querySelector('.add-inline-btns');
-      _createTargetCatBody.insertBefore(row, btns);
+      var insertRef = _createInsertBefore || _createTargetCatBody.querySelector('.add-inline-btns');
+      _createTargetCatBody.insertBefore(row, insertRef);
       // Expand category if collapsed
       if (!_createTargetCatBody.classList.contains('open')) {
         _createTargetCatBody.classList.add('open');
@@ -1652,6 +1722,7 @@
       closeTopicEditModal();
       toast('✓ Topic "' + title + '" created');
       _createTargetCatBody = null;
+      _createInsertBefore  = null;
     }
   }
 
@@ -1683,6 +1754,7 @@
     var catBody = form.parentElement;
     var subcat = document.createElement('div');
     subcat.className = 'subcat-row slide-in';
+    subcat.setAttribute('onclick', 'selectSubcat(this)');
     subcat.innerHTML = '<span class="subcat-arrow">↳</span><span class="subcat-name">' + name + '</span>';
     catBody.insertBefore(subcat, form);
     setTimeout(function() { subcat.classList.remove('slide-in'); }, 400);
