@@ -548,6 +548,16 @@
     }
     .gb-tags-bar-label { font-size: 11.5px; font-weight: 600; color: #94a3b8; white-space: nowrap; }
     .gb-tags-bar-chips { display: flex; gap: 6px; flex-wrap: wrap; }
+    .tag-removable { cursor: pointer; }
+    .tag-removable:hover { background: #fce7f3 !important; color: #9d174d !important; }
+
+    .btn-danger {
+      padding: 7px 16px; border-radius: 7px; font-size: 13px; font-weight: 600;
+      border: none; cursor: pointer;
+      background: #ef4444; color: white;
+      transition: background 0.15s;
+    }
+    .btn-danger:hover { background: #dc2626; }
 
     /* ─── CONTENT SCREEN LAYOUT ───────────────────── */
     #screen-content .content-area {
@@ -582,11 +592,17 @@
     }
     .add-search-input:focus { border-color: var(--teal); }
     .add-search-results {
-      display: flex; gap: 8px; flex-wrap: wrap;
+      display: flex; flex-direction: column; gap: 6px;
       padding: 0 18px 12px;
-      max-height: 130px;
+      max-height: 150px;
       overflow-y: auto;
     }
+    .add-results-section { display: flex; flex-direction: column; gap: 5px; }
+    .add-section-label {
+      font-size: 10px; font-weight: 700; color: #94a3b8;
+      text-transform: uppercase; letter-spacing: 0.07em;
+    }
+    .add-results-row { display: flex; gap: 7px; flex-wrap: wrap; }
     .add-result-card {
       display: flex; align-items: center; gap: 8px;
       background: white;
@@ -599,15 +615,25 @@
     }
     .add-result-card:hover { border-color: var(--teal); box-shadow: 0 2px 8px rgba(20,184,168,0.10); }
     .add-result-card.already-added { opacity: 0.4; pointer-events: none; }
+    .add-result-card.tag-card { border-color: #99f6e4; background: #f0fdfa; }
+    .add-result-card.tag-card:hover { border-color: var(--teal); background: #e6fffd; }
+    .add-result-card.tag-card.already-added { opacity: 0.4; pointer-events: none; }
     .add-result-icon {
       width: 26px; height: 26px; border-radius: 5px;
       background: linear-gradient(135deg,#fde68a,#f59e0b);
       display: flex; align-items: center; justify-content: center;
       font-size: 12px; flex-shrink: 0;
     }
-    .add-result-name { font-weight: 500; color: var(--navy); }
-    .add-result-tag  { font-size: 10.5px; color: var(--tag-pink-t); background: var(--tag-pink-bg); padding: 1px 7px; border-radius: 8px; }
-    .add-result-add  { margin-left: 4px; color: var(--teal-dark); font-weight: 700; font-size: 12px; }
+    .add-tag-icon {
+      width: 22px; height: 22px; border-radius: 5px;
+      background: var(--teal-bg); color: var(--teal-dark);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .add-result-name  { font-weight: 500; color: var(--navy); }
+    .add-result-tag   { font-size: 10.5px; color: var(--tag-pink-t); background: var(--tag-pink-bg); padding: 1px 7px; border-radius: 8px; }
+    .add-result-count { font-size: 10.5px; color: var(--teal-dark); background: var(--teal-bg); padding: 1px 7px; border-radius: 8px; }
+    .add-result-add   { margin-left: 4px; color: var(--teal-dark); font-weight: 700; font-size: 12px; }
 
     /* ─── SLIDE-IN ANIMATION ──────────────────────── */
     @keyframes slideInTopic {
@@ -1036,6 +1062,26 @@
   </div>
 </div>
 
+<!-- ══════════════════════════════════ REMOVE TAG CONFIRM MODAL ══ -->
+<div class="modal-overlay" id="remove-tag-modal">
+  <div class="modal" style="width:420px">
+    <div class="modal-head">
+      <div class="modal-title">Remove tag from guidebook?</div>
+      <span class="modal-close" onclick="closeRemoveTagModal()">×</span>
+    </div>
+    <div class="modal-body">
+      <p style="font-size:13.5px;color:var(--navy);margin-bottom:12px;">
+        Removing <strong id="rtm-tag-name"></strong> will remove the following topics from this guidebook:
+      </p>
+      <ul id="rtm-topic-list" style="list-style:none;display:flex;flex-direction:column;gap:6px;margin-bottom:4px;"></ul>
+    </div>
+    <div class="modal-foot">
+      <button class="btn-cancel" onclick="closeRemoveTagModal()">Cancel</button>
+      <button class="btn-danger" onclick="executeRemoveTag()">Yes, remove</button>
+    </div>
+  </div>
+</div>
+
 <!-- ═══════════════════════════════════════════════ TOAST ════════ -->
 <div class="toast" id="toast-el"></div>
 
@@ -1151,7 +1197,7 @@
     });
     el.innerHTML = myTags.length
       ? myTags.map(function(t) {
-          return '<span class="tag tag-sh">' + t + '</span>';
+          return '<span class="tag tag-sh tag-removable" onclick="confirmRemoveTag(\'' + t.replace(/'/g,"\\'") + '\')" title="Click to remove topics with this tag">' + t + ' ✕</span>';
         }).join('')
       : '<span style="font-size:12px;color:#94a3b8;font-style:italic">None yet</span>';
   }
@@ -1321,27 +1367,80 @@
     var resultsEl = document.getElementById('add-search-results');
     var q = query.trim().toLowerCase();
 
-    var filtered = q === ''
-      ? searchPool
-      : searchPool.filter(function(t) {
-          return t.id.toLowerCase().includes(q)
-            || t.tags.some(function(tag) { return tag.toLowerCase().includes(q); });
-        });
+    // --- Topics section ---
+    var filteredTopics = searchPool.filter(function(t) {
+      return q === '' || t.id.toLowerCase().includes(q);
+    });
 
-    if (filtered.length === 0) {
+    // --- Tags section: unique tag names that match ---
+    var allTags = [];
+    searchPool.forEach(function(t) {
+      t.tags.forEach(function(tag) {
+        if (allTags.indexOf(tag) < 0) allTags.push(tag);
+      });
+    });
+    var filteredTags = allTags.filter(function(tag) {
+      return q === '' || tag.toLowerCase().includes(q);
+    });
+
+    if (filteredTopics.length === 0 && filteredTags.length === 0) {
       resultsEl.innerHTML = '<span style="font-size:12px;color:#94a3b8;padding:4px 0;">No results for "' + query + '"</span>';
       return;
     }
 
-    resultsEl.innerHTML = filtered.map(function(t) {
-      var added = addedToGuidebook[t.id];
-      return '<div class="add-result-card' + (added ? ' already-added' : '') + '" onclick="addTopicToGuidebook(\'' + t.id + '\')">'
-        + '<div class="add-result-icon" style="background:' + t.bg + '">' + t.icon + '</div>'
-        + '<span class="add-result-name">' + t.id + '</span>'
-        + '<span class="add-result-tag">' + t.tags[0] + '</span>'
-        + (added ? '<span class="add-result-add">✓ Added</span>' : '<span class="add-result-add">+ Add</span>')
-        + '</div>';
-    }).join('');
+    var html = '';
+
+    // Topics section
+    if (filteredTopics.length > 0) {
+      html += '<div class="add-results-section">'
+        + '<span class="add-section-label">Topics</span>'
+        + '<div class="add-results-row">'
+        + filteredTopics.map(function(t) {
+            var added = addedToGuidebook[t.id];
+            return '<div class="add-result-card' + (added ? ' already-added' : '') + '" onclick="addTopicToGuidebook(\'' + t.id + '\')">'
+              + '<div class="add-result-icon" style="background:' + t.bg + '">' + t.icon + '</div>'
+              + '<span class="add-result-name">' + t.id + '</span>'
+              + '<span class="add-result-tag">' + t.tags[0] + '</span>'
+              + (added ? '<span class="add-result-add">✓ Added</span>' : '<span class="add-result-add">+ Add</span>')
+              + '</div>';
+          }).join('')
+        + '</div></div>';
+    }
+
+    // Tags section
+    if (filteredTags.length > 0) {
+      html += '<div class="add-results-section">'
+        + '<span class="add-section-label">Tags</span>'
+        + '<div class="add-results-row">'
+        + filteredTags.map(function(tag) {
+            var topicsForTag = searchPool.filter(function(t) { return t.tags.indexOf(tag) >= 0; });
+            var allAdded = topicsForTag.every(function(t) { return addedToGuidebook[t.id]; });
+            var count = topicsForTag.length;
+            return '<div class="add-result-card tag-card' + (allAdded ? ' already-added' : '') + '" onclick="addTagToGuidebook(\'' + tag.replace(/'/g, "\\'") + '\')">'
+              + '<div class="add-tag-icon"><svg width="12" height="12" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M17.707 9.293l-7-7A1 1 0 0010 2H4a2 2 0 00-2 2v6a1 1 0 00.293.707l7 7a1 1 0 001.414 0l6-6a1 1 0 000-1.414zM6 7a1 1 0 110-2 1 1 0 010 2z"/></svg></div>'
+              + '<span class="add-result-name">' + tag + '</span>'
+              + '<span class="add-result-count">' + count + ' topic' + (count !== 1 ? 's' : '') + '</span>'
+              + (allAdded ? '<span class="add-result-add">✓ Added</span>' : '<span class="add-result-add">+ Add all</span>')
+              + '</div>';
+          }).join('')
+        + '</div></div>';
+    }
+
+    resultsEl.innerHTML = html;
+  }
+
+  function addTagToGuidebook(tagName) {
+    var topicsForTag = searchPool.filter(function(t) { return t.tags.indexOf(tagName) >= 0; });
+    var toAdd = topicsForTag.filter(function(t) { return !addedToGuidebook[t.id]; });
+    if (toAdd.length === 0) return;
+
+    toAdd.forEach(function(t) { addTopicToGuidebook(t.id); });
+
+    // Toast summarising bulk add (individual toasts fire inside addTopicToGuidebook,
+    // so override with a single summary toast after a tick)
+    setTimeout(function() {
+      toast('✓ ' + toAdd.length + ' topic' + (toAdd.length !== 1 ? 's' : '') + ' from "' + tagName + '" added');
+    }, 50);
   }
 
   function addTopicToGuidebook(topicId) {
@@ -1391,6 +1490,63 @@
     searchAddContent(document.getElementById('add-search-input').value);
 
     toast('✓ "' + topicId + '" added to guidebook');
+  }
+
+  /* ══════════════════════════════════════
+     REMOVE TAG FROM GUIDEBOOK
+  ══════════════════════════════════════ */
+  var _removeTagPending = null; // { tagName, rows: [{row, name}] }
+
+  function confirmRemoveTag(tagName) {
+    // Scan every topic-row in the Content screen for this tag
+    var rows = [];
+    document.querySelectorAll('#screen-content .cat-body .topic-row').forEach(function(row) {
+      var tags = row.querySelectorAll('.topic-meta .tag');
+      var hasTag = false;
+      tags.forEach(function(t) { if (t.textContent.trim() === tagName) hasTag = true; });
+      if (hasTag) {
+        var nameEl = row.querySelector('.topic-name');
+        rows.push({ row: row, name: nameEl ? nameEl.textContent.trim() : '(unknown)' });
+      }
+    });
+
+    if (rows.length === 0) {
+      toast('No topics with this tag in the guidebook');
+      return;
+    }
+
+    _removeTagPending = { tagName: tagName, rows: rows };
+
+    document.getElementById('rtm-tag-name').textContent = tagName;
+    var listEl = document.getElementById('rtm-topic-list');
+    listEl.innerHTML = rows.map(function(r) {
+      return '<li style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--navy);">'
+        + '<span style="color:#ef4444;font-size:16px;line-height:1">–</span>'
+        + '<span>' + r.name + '</span></li>';
+    }).join('');
+
+    document.getElementById('remove-tag-modal').classList.add('open');
+  }
+
+  function closeRemoveTagModal() {
+    document.getElementById('remove-tag-modal').classList.remove('open');
+    _removeTagPending = null;
+  }
+
+  function executeRemoveTag() {
+    if (!_removeTagPending) return;
+    var tagName = _removeTagPending.tagName;
+    var removed = _removeTagPending.rows.length;
+
+    _removeTagPending.rows.forEach(function(r) {
+      r.row.parentNode.removeChild(r.row);
+      // Clear from addedToGuidebook so it can be re-added
+      delete addedToGuidebook[r.name];
+    });
+
+    closeRemoveTagModal();
+    searchAddContent(document.getElementById('add-search-input').value);
+    toast('✓ Removed ' + removed + ' topic' + (removed !== 1 ? 's' : '') + ' with tag "' + tagName + '"');
   }
 
   /* ── TOAST ── */
