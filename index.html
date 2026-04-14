@@ -665,6 +665,61 @@
     .new-gb-tile-ai .new-gb-tile-icon { color: #8b5cf6; }
     .new-gb-tile-ai:hover { border-color: #8b5cf6; box-shadow: 0 0 0 3px rgba(139,92,246,.08); }
     .new-gb-tile-ai:hover .new-gb-tile-label { color: #7c3aed; }
+    /* Merge topics banner */
+    .merge-banner {
+      display:flex; align-items:center; gap:10px; padding:10px 14px;
+      background:#fffbeb; border:1px solid #fcd34d; border-radius:8px;
+      margin-bottom:16px; font-size:13px; color:#92400e;
+    }
+    .merge-banner-icon { color:#f59e0b; flex-shrink:0; }
+    .merge-banner-actions { display:flex; gap:8px; margin-left:auto; }
+    .merge-banner-btn-later { background:none; border:1px solid #fcd34d; border-radius:6px; padding:4px 12px; font-size:12px; font-weight:600; color:#92400e; cursor:pointer; font-family:inherit; }
+    .merge-banner-btn-yes { background:#f59e0b; border:none; border-radius:6px; padding:4px 12px; font-size:12px; font-weight:600; color:white; cursor:pointer; font-family:inherit; }
+    .merge-banner-btn-yes:hover { background:#d97706; }
+    .merge-banner-close { background:none; border:none; font-size:18px; color:#d97706; cursor:pointer; padding:0 2px; margin-left:4px; line-height:1; }
+    /* Merge inline alert */
+    .merge-inline-alert {
+      display:flex; align-items:center; gap:8px; padding:8px 12px 8px 40px;
+      background:#fffbeb; border-left:3px solid #f59e0b; font-size:12px; color:#92400e;
+    }
+    .merge-inline-alert svg { color:#f59e0b; flex-shrink:0; }
+    .merge-inline-dismiss { background:none; border:1px solid #fcd34d; border-radius:5px; padding:3px 10px; font-size:11px; font-weight:600; color:#92400e; cursor:pointer; font-family:inherit; margin-left:auto; }
+    .merge-inline-start { background:#f59e0b; border:none; border-radius:5px; padding:3px 10px; font-size:11px; font-weight:600; color:white; cursor:pointer; font-family:inherit; }
+    .merge-inline-start:hover { background:#d97706; }
+    /* Merge candidates highlight */
+    .merge-candidate { background:#fffdf5; }
+    /* Merge modal steps */
+    .merge-steps { display:flex; align-items:center; gap:0; }
+    .merge-step { display:flex; align-items:center; gap:6px; }
+    .merge-step-num { width:22px; height:22px; border-radius:50%; background:#e2e8f0; color:#94a3b8; font-size:11px; font-weight:700; display:flex; align-items:center; justify-content:center; }
+    .merge-step.active .merge-step-num { background:#f59e0b; color:white; }
+    .merge-step.done .merge-step-num { background:#10b981; color:white; }
+    .merge-step-label { font-size:11px; font-weight:700; color:#94a3b8; letter-spacing:.5px; }
+    .merge-step.active .merge-step-label { color:#f59e0b; }
+    .merge-step.done .merge-step-label { color:#10b981; }
+    .merge-step-line { flex:1; min-width:32px; height:1px; background:#e2e8f0; margin:0 6px; }
+    .merge-step-desc { font-size:13px; color:#475569; margin:0 0 16px; }
+    /* Merge topic list rows */
+    .merge-topic-row {
+      display:flex; align-items:center; gap:12px; padding:10px 12px;
+      border:1.5px solid #e2e8f0; border-radius:8px; margin-bottom:8px; cursor:pointer;
+      transition:border-color .15s, background .15s;
+    }
+    .merge-topic-row:hover { border-color:#f59e0b; background:#fffbeb; }
+    .merge-topic-row.selected { border-color:#f59e0b; background:#fffbeb; }
+    .merge-topic-row.master-locked { border-color:#10b981; background:#f0fdf4; cursor:default; }
+    .merge-topic-row input[type=radio], .merge-topic-row input[type=checkbox] { accent-color:#f59e0b; width:15px; height:15px; flex-shrink:0; cursor:pointer; }
+    .merge-topic-row input[type=checkbox][disabled] { accent-color:#10b981; }
+    .merge-topic-thumb { width:32px; height:32px; border-radius:6px; background:linear-gradient(135deg,#fde68a,#f59e0b); display:flex; align-items:center; justify-content:center; font-size:16px; flex-shrink:0; }
+    .merge-topic-info { flex:1; min-width:0; }
+    .merge-topic-name { font-size:13px; font-weight:600; color:#1e293b; }
+    .merge-topic-tag { font-size:11px; color:#64748b; margin-top:2px; }
+    .merge-master-badge { font-size:10px; font-weight:700; color:#10b981; background:#dcfce7; padding:2px 7px; border-radius:10px; letter-spacing:.3px; flex-shrink:0; }
+    /* Merge warning */
+    .merge-warning {
+      display:flex; gap:10px; align-items:flex-start; padding:12px 14px;
+      background:#fef2f2; border:1px solid #fecaca; border-radius:8px; font-size:12px; color:#991b1b;
+    }
 
     /* ─── PROP-SECTION FOR FORM CONTROLS (Appearance etc) ─ */
     .prop-section-controls {
@@ -1664,6 +1719,19 @@
     <div class="content-area">
       <h1 class="page-title">Content Hub</h1>
 
+      <!-- Merge suggestion banner -->
+      <div class="merge-banner" id="merge-banner">
+        <div class="merge-banner-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17 20.41L18.41 19 15 15.59 13.59 17 17 20.41zM7.5 8H11v5.59L5.59 19 7 20.41l6-6V8h3.5L12 3.5 7.5 8z"/></svg>
+        </div>
+        <span>Do you want me to help you with content clutter?</span>
+        <div class="merge-banner-actions">
+          <button class="merge-banner-btn-later" onclick="dismissMergeBanner()">Later</button>
+          <button class="merge-banner-btn-yes" onclick="openMergeModal()">Yes</button>
+        </div>
+        <button class="merge-banner-close" onclick="dismissMergeBanner()">×</button>
+      </div>
+
       <!-- Tab navigation -->
       <div class="hub-tabs">
         <div class="hub-tab active" onclick="switchHubTab('content',this)">Content Library</div>
@@ -1727,9 +1795,9 @@
           <div class="cat-row" onclick="toggleCat(this)">
             <span class="cat-icon">🏠</span>
             <span class="cat-name">About the home</span>
-            <span class="chevron">▾</span>
+            <span class="chevron open">▾</span>
           </div>
-          <div class="cat-body">
+          <div class="cat-body open">
             <div class="subcat-row" onclick="selectSubcat(this)">
               <span class="subcat-arrow">↳</span>
               <span class="subcat-name">Amenities</span>
@@ -1738,6 +1806,42 @@
               <div class="topic-thumb" style="background:linear-gradient(135deg,#d1fae5,#10b981)">📶</div>
               <span class="topic-name">Wi-Fi Setup</span>
               <div class="topic-tags"></div>
+              <div class="topic-gbs"></div>
+            </div>
+
+            <div class="subcat-row" onclick="selectSubcat(this)">
+              <span class="subcat-arrow">↳</span>
+              <span class="subcat-name">Access &amp; Security</span>
+            </div>
+            <!-- Inline merge alert -->
+            <div class="merge-inline-alert" id="merge-inline-alert">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M17 20.41L18.41 19 15 15.59 13.59 17 17 20.41zM7.5 8H11v5.59L5.59 19 7 20.41l6-6V8h3.5L12 3.5 7.5 8z"/></svg>
+              <span>Multiple topics look similar. Consolidate them?</span>
+              <button class="merge-inline-dismiss" onclick="dismissInlineAlert()">Dismiss</button>
+              <button class="merge-inline-start" onclick="openMergeModal()">Start Merge</button>
+            </div>
+            <div class="topic-row merge-candidate" data-topic="Access Codes / Instructions" onclick="openTopicEditModal(this)">
+              <div class="topic-thumb" style="background:linear-gradient(135deg,#fde68a,#f59e0b)">🔑</div>
+              <span class="topic-name">Access Codes / Instructions</span>
+              <div class="topic-tags"><span class="tag tag-sh">all-guides</span></div>
+              <div class="topic-gbs"></div>
+            </div>
+            <div class="topic-row merge-candidate" data-topic="Access Codes / Instructions" onclick="openTopicEditModal(this)">
+              <div class="topic-thumb" style="background:linear-gradient(135deg,#fde68a,#f59e0b)">🔑</div>
+              <span class="topic-name">Access Codes / Instructions</span>
+              <div class="topic-tags"><span class="tag tag-sh">bucharest</span></div>
+              <div class="topic-gbs"></div>
+            </div>
+            <div class="topic-row merge-candidate" data-topic="Access Codes / Instructions" onclick="openTopicEditModal(this)">
+              <div class="topic-thumb" style="background:linear-gradient(135deg,#fde68a,#f59e0b)">🔑</div>
+              <span class="topic-name">Access Codes / Instructions</span>
+              <div class="topic-tags"><span class="tag tag-sh">london-2</span></div>
+              <div class="topic-gbs"></div>
+            </div>
+            <div class="topic-row merge-candidate" data-topic="Access Codes / Instructions" onclick="openTopicEditModal(this)">
+              <div class="topic-thumb" style="background:linear-gradient(135deg,#fde68a,#f59e0b)">🔑</div>
+              <span class="topic-name">Access Codes / Instructions</span>
+              <div class="topic-tags"><span class="tag tag-sh">london</span></div>
               <div class="topic-gbs"></div>
             </div>
           </div>
@@ -2862,6 +2966,63 @@
       </div>
     </div><!-- /visibility tab -->
 
+  </div>
+</div>
+
+<!-- ══════════════════════════════════ MERGE TOPICS MODAL ══════════ -->
+<div class="modal-overlay" id="merge-modal" onclick="if(event.target===this)closeMergeModal()">
+  <div class="modal" style="width:560px">
+    <div class="modal-head" style="flex-direction:column;align-items:flex-start;gap:12px;padding-bottom:14px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;width:100%;">
+        <div class="modal-title">Merge Similar Topics</div>
+        <span class="modal-close" onclick="closeMergeModal()">×</span>
+      </div>
+      <!-- Step indicators -->
+      <div class="merge-steps">
+        <div class="merge-step active" id="mstep-1"><span class="merge-step-num">1</span><span class="merge-step-label">MASTER</span></div>
+        <div class="merge-step-line"></div>
+        <div class="merge-step" id="mstep-2"><span class="merge-step-num">2</span><span class="merge-step-label">SELECTION</span></div>
+        <div class="merge-step-line"></div>
+        <div class="merge-step" id="mstep-3"><span class="merge-step-num">3</span><span class="merge-step-label">TAG NAME</span></div>
+      </div>
+    </div>
+
+    <!-- Step 1: Master Selection -->
+    <div class="modal-body merge-step-body" id="merge-body-1">
+      <p class="merge-step-desc">Select one topic to serve as the Master. This content will be preserved.</p>
+      <div class="merge-topic-list" id="merge-master-list">
+        <!-- Populated by JS -->
+      </div>
+    </div>
+
+    <!-- Step 2: Topic Selection -->
+    <div class="modal-body merge-step-body" id="merge-body-2" style="display:none">
+      <p class="merge-step-desc">Choose which topics to merge. The Master topic is locked. De-selected topics will remain in your list unmerged.</p>
+      <div class="merge-topic-list" id="merge-select-list">
+        <!-- Populated by JS -->
+      </div>
+    </div>
+
+    <!-- Step 3: Tag Name + Warning -->
+    <div class="modal-body merge-step-body" id="merge-body-3" style="display:none">
+      <p class="merge-step-desc">Name the shared tag that will link the Master topic to all selected guidebooks.</p>
+      <div style="margin-bottom:16px;">
+        <label style="font-size:12px;font-weight:600;color:#64748b;display:block;margin-bottom:6px;">New Shared Tag Name</label>
+        <input id="merge-tag-input" class="prop-field-edit-input" type="text" value="Shared Access Codes / Instructions" style="margin-top:0;">
+      </div>
+      <div class="merge-warning">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="flex-shrink:0;color:#ef4444"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+        <span>Warning: Selected topics will be deleted and replaced with the Master topic across all guidebooks. This action cannot be undone.</span>
+      </div>
+    </div>
+
+    <div class="modal-footer" style="padding:14px 20px;border-top:1px solid var(--grey-border);display:flex;justify-content:space-between;align-items:center;">
+      <button class="btn-ghost" id="merge-back-btn" onclick="mergeBack()" style="visibility:hidden">Back</button>
+      <div style="display:flex;gap:10px;">
+        <button class="btn-ghost" onclick="closeMergeModal()">Cancel</button>
+        <button class="btn-primary" id="merge-next-btn" onclick="mergeNext()">Next</button>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -4317,6 +4478,152 @@
     document.getElementById('prop-edit-modal').classList.remove('open');
     _propEditTarget = null;
   }
+
+  // ─── Merge Topics ────────────────────────────────────────
+  var _mergeStep = 1;
+  var _mergeMaster = null; // index of master topic
+  var _mergeSelected = []; // indices of selected topics
+  var _mergeTopics = [
+    { name: 'Access Codes / Instructions', tag: 'all-guides' },
+    { name: 'Access Codes / Instructions', tag: 'bucharest' },
+    { name: 'Access Codes / Instructions', tag: 'london-2' },
+    { name: 'Access Codes / Instructions', tag: 'london' }
+  ];
+
+  function dismissMergeBanner() {
+    var el = document.getElementById('merge-banner');
+    if (el) el.style.display = 'none';
+  }
+  function dismissInlineAlert() {
+    var el = document.getElementById('merge-inline-alert');
+    if (el) el.style.display = 'none';
+  }
+
+  function openMergeModal() {
+    _mergeStep = 1;
+    _mergeMaster = null;
+    _mergeSelected = [];
+    renderMergeStep();
+    document.getElementById('merge-modal').style.display = 'flex';
+  }
+  function closeMergeModal() {
+    document.getElementById('merge-modal').style.display = 'none';
+  }
+
+  function renderMergeStep() {
+    // Update step indicators
+    [1,2,3].forEach(function(n) {
+      var el = document.getElementById('mstep-'+n);
+      el.classList.remove('active','done');
+      if (n < _mergeStep) el.classList.add('done');
+      else if (n === _mergeStep) el.classList.add('active');
+    });
+    // Show/hide bodies
+    document.getElementById('merge-body-1').style.display = _mergeStep===1 ? '' : 'none';
+    document.getElementById('merge-body-2').style.display = _mergeStep===2 ? '' : 'none';
+    document.getElementById('merge-body-3').style.display = _mergeStep===3 ? '' : 'none';
+    // Back button
+    document.getElementById('merge-back-btn').style.visibility = _mergeStep > 1 ? 'visible' : 'hidden';
+    // Next/Merge button
+    var nextBtn = document.getElementById('merge-next-btn');
+    nextBtn.textContent = _mergeStep === 3 ? 'Merge' : 'Next';
+
+    if (_mergeStep === 1) renderMasterList();
+    else if (_mergeStep === 2) renderSelectList();
+  }
+
+  function renderMasterList() {
+    var list = document.getElementById('merge-master-list');
+    list.innerHTML = _mergeTopics.map(function(t, i) {
+      var checked = _mergeMaster === i ? 'checked' : '';
+      return '<label class="merge-topic-row' + (_mergeMaster===i?' selected':'') + '" onclick="selectMaster('+i+',this)">' +
+        '<input type="radio" name="merge-master" ' + checked + ' onchange="selectMaster('+i+',this.closest(\'.merge-topic-row\'))">' +
+        '<div class="merge-topic-thumb">🔑</div>' +
+        '<div class="merge-topic-info"><div class="merge-topic-name">' + t.name + '</div>' +
+        '<div class="merge-topic-tag">Tag: ' + t.tag + '</div></div>' +
+        '</label>';
+    }).join('');
+  }
+
+  function selectMaster(idx, row) {
+    _mergeMaster = idx;
+    document.querySelectorAll('#merge-master-list .merge-topic-row').forEach(function(r,i) {
+      r.classList.toggle('selected', i===idx);
+    });
+    var radios = document.querySelectorAll('#merge-master-list input[type=radio]');
+    if (radios[idx]) radios[idx].checked = true;
+  }
+
+  function renderSelectList() {
+    var list = document.getElementById('merge-select-list');
+    list.innerHTML = _mergeTopics.map(function(t, i) {
+      var isMaster = i === _mergeMaster;
+      var isSelected = isMaster || _mergeSelected.indexOf(i) > -1;
+      if (isMaster && _mergeSelected.indexOf(i) < 0) _mergeSelected.push(i);
+      return '<div class="merge-topic-row ' + (isMaster ? 'master-locked' : (isSelected?'selected':'')) + '" ' +
+        (isMaster ? '' : 'onclick="toggleMergeTarget('+i+',this)"') + '>' +
+        '<input type="checkbox" ' + (isSelected?'checked':'') + ' ' + (isMaster?'disabled':'') + ' ' +
+        (isMaster ? '' : 'onchange="toggleMergeTarget('+i+',this.closest(\'.merge-topic-row\'))"') + '>' +
+        '<div class="merge-topic-thumb">🔑</div>' +
+        '<div class="merge-topic-info"><div class="merge-topic-name">' + t.name + '</div>' +
+        '<div class="merge-topic-tag">Tag: ' + t.tag + '</div></div>' +
+        (isMaster ? '<span class="merge-master-badge">MASTER</span>' : '') +
+        '</div>';
+    }).join('');
+  }
+
+  function toggleMergeTarget(idx, row) {
+    var pos = _mergeSelected.indexOf(idx);
+    if (pos > -1) {
+      _mergeSelected.splice(pos, 1);
+      row.classList.remove('selected');
+      row.querySelector('input[type=checkbox]').checked = false;
+    } else {
+      _mergeSelected.push(idx);
+      row.classList.add('selected');
+      row.querySelector('input[type=checkbox]').checked = true;
+    }
+  }
+
+  function mergeNext() {
+    if (_mergeStep === 1) {
+      if (_mergeMaster === null) { showToast('Please select a Master topic'); return; }
+      _mergeStep = 2;
+      renderMergeStep();
+    } else if (_mergeStep === 2) {
+      if (_mergeSelected.length < 2) { showToast('Select at least one additional topic to merge'); return; }
+      _mergeStep = 3;
+      renderMergeStep();
+    } else if (_mergeStep === 3) {
+      executeMerge();
+    }
+  }
+
+  function mergeBack() {
+    if (_mergeStep > 1) { _mergeStep--; renderMergeStep(); }
+  }
+
+  function executeMerge() {
+    var tagName = document.getElementById('merge-tag-input').value.trim() || 'Shared Access Codes / Instructions';
+    closeMergeModal();
+    // Remove non-master candidate rows from DOM
+    var candidates = document.querySelectorAll('.merge-candidate');
+    var keptIdx = _mergeMaster;
+    candidates.forEach(function(row, i) {
+      if (i !== keptIdx) row.remove();
+    });
+    // Update the kept row's tag
+    var kept = document.querySelectorAll('.merge-candidate')[0];
+    if (kept) {
+      var tagEl = kept.querySelector('.topic-tags');
+      if (tagEl) tagEl.innerHTML = '<span class="tag tag-sh">' + tagName + '</span>';
+      kept.classList.remove('merge-candidate');
+    }
+    dismissMergeBanner();
+    dismissInlineAlert();
+    showToast('Topics merged — "' + tagName + '" tag applied');
+  }
+  // ─── End Merge Topics ──────────────────────────────────────
 
   function openNewGuidebookModal() {
     document.getElementById('new-gb-modal').style.display = 'flex';
