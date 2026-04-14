@@ -1668,6 +1668,8 @@
             <span class="chevron">▾</span>
           </div>
           <div class="cat-body"></div>
+
+          <div id="gb-dynamic-section"></div>
         </div>
         <button class="add-cat-btn" onclick="startAddCategory(this)">
           <svg width="14" height="14" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"/></svg>
@@ -4541,6 +4543,9 @@
   function dismissInlineAlert() {
     var el = document.getElementById('merge-inline-alert');
     if (el) el.style.display = 'none';
+    document.querySelectorAll('.merge-candidate').forEach(function(row) {
+      row.classList.remove('merge-candidate');
+    });
   }
 
   function openMergeModal() {
@@ -4683,14 +4688,102 @@
   var _activeGb = 'beach-retreat';
 
   var _gbContent = {
-    'beach-retreat':     { host:'Catalin',  email:'catalin@touchstay.com',  checkin:'3:00 PM',  checkout:'11:00 AM', tags:['beach property rules','kitchen hardware'],       gradient:'linear-gradient(180deg,#a8d4f5 0%,#3d7fa0 38%,#2e7a6a 60%,#6ab556 100%)', accent:'#14b8a8' },
-    'mountain-lodge':    { host:'Sarah',    email:'sarah@mountain.com',      checkin:'4:00 PM',  checkout:'10:00 AM', tags:['cabin essentials','fireplace guide'],            gradient:'linear-gradient(180deg,#fde68a 0%,#d97706 35%,#92400e 65%,#3d2a1a 100%)', accent:'#d97706' },
-    'city-apartment':    { host:'Marcus',   email:'marcus@cityapt.com',      checkin:'3:00 PM',  checkout:'11:00 AM', tags:['kitchen hardware','transport guide'],            gradient:'linear-gradient(180deg,#bfdbfe 0%,#3b82f6 40%,#1e40af 100%)',             accent:'#3b82f6' },
-    'bucharest-apt':     { host:'Andrei',   email:'andrei@touchstay.com',    checkin:'2:00 PM',  checkout:'12:00 PM', tags:['access codes','bucharest essentials'],           gradient:'linear-gradient(180deg,#ede9fe 0%,#7c3aed 45%,#4c1d95 100%)',             accent:'#7c3aed' },
-    'edinburgh-cottage': { host:'Fiona',    email:'fiona@cottage.co.uk',     checkin:'4:00 PM',  checkout:'10:00 AM', tags:['house rules','local attractions'],               gradient:'linear-gradient(180deg,#f1f5f9 0%,#94a3b8 40%,#334155 100%)',             accent:'#64748b' },
-    'marbella-villa':    { host:'Catalin',  email:'catalin@touchstay.com',   checkin:'3:00 PM',  checkout:'11:00 AM', tags:['pool rules','beach property rules'],             gradient:'linear-gradient(180deg,#fef9c3 0%,#fbbf24 30%,#b45309 65%,#7c2d12 100%)',accent:'#f59e0b' },
-    'tokyo-studio':      { host:'Yuki',     email:'yuki@touchstay.jp',       checkin:'3:00 PM',  checkout:'11:00 AM', tags:['house rules','tokyo transport'],                 gradient:'linear-gradient(180deg,#ffe4e6 0%,#f43f5e 40%,#9f1239 100%)',             accent:'#f43f5e' },
-    'lisbon-suite':      { host:'Miguel',   email:'miguel@lisbon.pt',         checkin:'2:00 PM',  checkout:'12:00 PM', tags:['kitchen hardware','transport guide'],            gradient:'linear-gradient(180deg,#dbeafe 0%,#2563eb 40%,#1e3a8a 100%)',             accent:'#2563eb' }
+    'beach-retreat': {
+      host:'Catalin', email:'catalin@touchstay.com', checkin:'3:00 PM', checkout:'11:00 AM',
+      tags:['beach property rules','kitchen hardware'],
+      gradient:'linear-gradient(180deg,#a8d4f5 0%,#3d7fa0 38%,#2e7a6a 60%,#6ab556 100%)', accent:'#14b8a8',
+      section:'Property Guide', icon:'🏖️',
+      topics:[
+        { name:'Pool Safety Rules',       icon:'🏊', g:'linear-gradient(135deg,#bfdbfe,#3b82f6)' },
+        { name:'Beach Access Guide',      icon:'🌊', g:'linear-gradient(135deg,#a5f3fc,#0891b2)' },
+        { name:'BBQ & Outdoor Dining',    icon:'🔥', g:'linear-gradient(135deg,#fde68a,#f97316)' },
+        { name:'Surf & Water Conditions', icon:'🤿', g:'linear-gradient(135deg,#6ee7b7,#059669)' }
+      ]
+    },
+    'mountain-lodge': {
+      host:'Sarah', email:'sarah@mountain.com', checkin:'4:00 PM', checkout:'10:00 AM',
+      tags:['cabin essentials','fireplace guide'],
+      gradient:'linear-gradient(180deg,#fde68a 0%,#d97706 35%,#92400e 65%,#3d2a1a 100%)', accent:'#d97706',
+      section:'Lodge Guide', icon:'🏔️',
+      topics:[
+        { name:'Fireplace & Wood Stove',  icon:'🪵', g:'linear-gradient(135deg,#fde68a,#b45309)' },
+        { name:'Hiking Trails Map',       icon:'🥾', g:'linear-gradient(135deg,#d1fae5,#059669)' },
+        { name:'Wildlife Safety Tips',    icon:'🐻', g:'linear-gradient(135deg,#fef3c7,#d97706)' },
+        { name:'Winter Road Conditions',  icon:'❄️', g:'linear-gradient(135deg,#e0f2fe,#0284c7)' }
+      ]
+    },
+    'city-apartment': {
+      host:'Marcus', email:'marcus@cityapt.com', checkin:'3:00 PM', checkout:'11:00 AM',
+      tags:['kitchen hardware','transport guide'],
+      gradient:'linear-gradient(180deg,#bfdbfe 0%,#3b82f6 40%,#1e40af 100%)', accent:'#3b82f6',
+      section:'City Guide', icon:'🏙️',
+      topics:[
+        { name:'Subway & Transit Guide',  icon:'🚇', g:'linear-gradient(135deg,#bfdbfe,#1d4ed8)' },
+        { name:'Parking Instructions',    icon:'🅿️', g:'linear-gradient(135deg,#ddd6fe,#7c3aed)' },
+        { name:'Neighbourhood Eats',      icon:'🍽️', g:'linear-gradient(135deg,#fecdd3,#e11d48)' },
+        { name:'Building Entry & Intercom',icon:'🔐',g:'linear-gradient(135deg,#d1fae5,#065f46)' }
+      ]
+    },
+    'bucharest-apt': {
+      host:'Andrei', email:'andrei@touchstay.com', checkin:'2:00 PM', checkout:'12:00 PM',
+      tags:['access codes','bucharest essentials'],
+      gradient:'linear-gradient(180deg,#ede9fe 0%,#7c3aed 45%,#4c1d95 100%)', accent:'#7c3aed',
+      section:'City Guide', icon:'🏛️',
+      topics:[
+        { name:'Getting Around Bucharest',icon:'🚌', g:'linear-gradient(135deg,#c4b5fd,#7c3aed)' },
+        { name:'Currency & Payment Tips', icon:'💶', g:'linear-gradient(135deg,#fde68a,#ca8a04)' },
+        { name:'Old Town Walking Map',    icon:'🗺️', g:'linear-gradient(135deg,#fed7aa,#ea580c)' },
+        { name:'Dining & Nightlife',      icon:'🍷', g:'linear-gradient(135deg,#fecdd3,#be123c)' }
+      ]
+    },
+    'edinburgh-cottage': {
+      host:'Fiona', email:'fiona@cottage.co.uk', checkin:'4:00 PM', checkout:'10:00 AM',
+      tags:['house rules','local attractions'],
+      gradient:'linear-gradient(180deg,#f1f5f9 0%,#94a3b8 40%,#334155 100%)', accent:'#64748b',
+      section:'Scotland Guide', icon:'🏴󠁧󠁢󠁳󠁣󠁴󠁿',
+      topics:[
+        { name:'Castle & Old Town Guide', icon:'🏰', g:'linear-gradient(135deg,#e2e8f0,#475569)' },
+        { name:'Highlands Day Trips',     icon:'🌄', g:'linear-gradient(135deg,#d1fae5,#065f46)' },
+        { name:'Whisky Distillery Tours', icon:'🥃', g:'linear-gradient(135deg,#fde68a,#92400e)' },
+        { name:'Traditional Scottish Food',icon:'🍴',g:'linear-gradient(135deg,#fce7f3,#9d174d)' }
+      ]
+    },
+    'marbella-villa': {
+      host:'Catalin', email:'catalin@touchstay.com', checkin:'3:00 PM', checkout:'11:00 AM',
+      tags:['pool rules','beach property rules'],
+      gradient:'linear-gradient(180deg,#fef9c3 0%,#fbbf24 30%,#b45309 65%,#7c2d12 100%)', accent:'#f59e0b',
+      section:'Villa Guide', icon:'🌴',
+      topics:[
+        { name:'Pool Rules & Hours',      icon:'🏊', g:'linear-gradient(135deg,#bfdbfe,#0369a1)' },
+        { name:'Nearest Beaches',         icon:'🏖️', g:'linear-gradient(135deg,#fde68a,#0891b2)' },
+        { name:'Golf Courses Nearby',     icon:'⛳', g:'linear-gradient(135deg,#d1fae5,#15803d)' },
+        { name:'Staff & Concierge',       icon:'🛎️', g:'linear-gradient(135deg,#fef9c3,#b45309)' }
+      ]
+    },
+    'tokyo-studio': {
+      host:'Yuki', email:'yuki@touchstay.jp', checkin:'3:00 PM', checkout:'11:00 AM',
+      tags:['house rules','tokyo transport'],
+      gradient:'linear-gradient(180deg,#ffe4e6 0%,#f43f5e 40%,#9f1239 100%)', accent:'#f43f5e',
+      section:'Tokyo Guide', icon:'🗼',
+      topics:[
+        { name:'IC Card & Train Pass',    icon:'🚆', g:'linear-gradient(135deg,#fecdd3,#e11d48)' },
+        { name:'Convenience Store Guide', icon:'🏪', g:'linear-gradient(135deg,#fde68a,#ca8a04)' },
+        { name:'Neighbourhood Etiquette', icon:'🎌', g:'linear-gradient(135deg,#ffe4e6,#9f1239)' },
+        { name:'Must-Try Local Food',     icon:'🍜', g:'linear-gradient(135deg,#fed7aa,#c2410c)' }
+      ]
+    },
+    'lisbon-suite': {
+      host:'Miguel', email:'miguel@lisbon.pt', checkin:'2:00 PM', checkout:'12:00 PM',
+      tags:['kitchen hardware','transport guide'],
+      gradient:'linear-gradient(180deg,#dbeafe 0%,#2563eb 40%,#1e3a8a 100%)', accent:'#2563eb',
+      section:'Business Guide', icon:'💼',
+      topics:[
+        { name:'Airport Transfer Options',icon:'✈️', g:'linear-gradient(135deg,#bfdbfe,#1e40af)' },
+        { name:'Business Districts',      icon:'🏢', g:'linear-gradient(135deg,#e2e8f0,#334155)' },
+        { name:'Coworking Spaces Nearby', icon:'💻', g:'linear-gradient(135deg,#d1fae5,#047857)' },
+        { name:'Expense & Receipt Guide', icon:'🧾', g:'linear-gradient(135deg,#fef9c3,#a16207)' }
+      ]
+    }
   };
 
   function syncGbContent(id) {
@@ -4744,6 +4837,33 @@
     document.querySelectorAll('.gb-selector-bar span[style*="font-weight:600"]').forEach(function(el){
       el.textContent = gb.name;
     });
+
+    // 5 — dynamic per-guidebook topics section
+    var dynSection = document.getElementById('gb-dynamic-section');
+    if (dynSection && d.topics && d.topics.length) {
+      var topicRows = d.topics.map(function(t) {
+        return '<div class="topic-row editable" onclick="openTopicEditModal(this)">' +
+          '<div class="topic-thumb" style="background:' + t.g + '">' + t.icon + '</div>' +
+          '<div class="topic-main">' +
+            '<span class="topic-name">' + t.name + '</span>' +
+            '<div class="topic-meta"><span class="tag tag-gb" style="cursor:default;">' + gb.name + '</span></div>' +
+          '</div>' +
+        '</div>';
+      }).join('');
+      dynSection.innerHTML =
+        '<div class="cat-row" onclick="toggleCat(this)">' +
+          '<span class="cat-icon">' + d.icon + '</span>' +
+          '<span class="cat-name">' + d.section + '</span>' +
+          '<span class="chevron open">▾</span>' +
+        '</div>' +
+        '<div class="cat-body open">' +
+          '<div class="subcat-row" onclick="selectSubcat(this)">' +
+            '<span class="subcat-arrow">↳</span>' +
+            '<span class="subcat-name">Highlights</span>' +
+          '</div>' +
+          topicRows +
+        '</div>';
+    }
   }
 
   function renderGbList(filter) {
