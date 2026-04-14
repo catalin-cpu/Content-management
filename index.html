@@ -4182,9 +4182,44 @@
     if (_editingTopicRow) {
       var name = _editingTopicRow.querySelector('.topic-name').textContent.trim();
       topicTags[name] = newTags;
+      renderAllTopicRowsByName(name);
+      renderGuidebookTags();
     }
     closeTopicEditModal();
     toast('✓ Visibility saved');
+  }
+
+  /* Update every topic row in the document that matches a given name —
+     handles both static rows (data-topic) and dynamically generated hub rows */
+  function renderAllTopicRowsByName(name) {
+    var tags = topicTags[name] || [];
+    var gbs  = getTopicGuidebooks(name);
+
+    document.querySelectorAll('.topic-row').forEach(function(row) {
+      var nameEl = row.querySelector('.topic-name');
+      if (!nameEl || nameEl.textContent.trim() !== name) return;
+
+      // Always update the tags column
+      var tagsEl = row.querySelector('.topic-tags');
+      if (tagsEl) {
+        tagsEl.innerHTML = tags.length
+          ? tags.map(function(t) { return '<span class="tag tag-sh">' + t + '</span>'; }).join('')
+          : '';
+      }
+
+      // Update guidebooks column only on rows that use tag-derived gb list (data-topic rows)
+      if (row.hasAttribute('data-topic')) {
+        var gbsEl = row.querySelector('.topic-gbs');
+        if (gbsEl) {
+          gbsEl.innerHTML = gbs.length
+            ? gbs.map(function(gb) {
+                return '<span class="gb-dot-mini" style="background:' + (GB_COLORS[gb] || '#14b8a8') + '"></span>'
+                     + '<span class="gb-name-mini">' + gb + '</span>';
+              }).join('<span class="topic-meta-sep" style="margin:0 2px">·</span>')
+            : '<span class="topic-no-gbs">No guidebooks</span>';
+        }
+      }
+    });
   }
 
   /* ══════════════════════════════════════
