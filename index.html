@@ -559,6 +559,43 @@
     }
     .btn-danger:hover { background: #dc2626; }
 
+    /* ─── INLINE ADD BUTTONS ──────────────────────── */
+    .add-inline-btns { display: flex; gap: 6px; padding: 7px 0 3px; }
+    .add-inline-btn {
+      flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px;
+      padding: 7px 10px; border: 1.5px dashed var(--grey-border); border-radius: 7px;
+      color: var(--grey-text); font-size: 12px; font-weight: 500; cursor: pointer;
+      background: none; font-family: inherit;
+      transition: border-color 0.15s, color 0.15s, background 0.15s;
+    }
+    .add-inline-btn:hover { border-color: var(--teal); color: var(--teal-dark); background: #f0fdfa; }
+    .add-cat-btn {
+      display: flex; align-items: center; justify-content: center; gap: 7px;
+      width: 100%; padding: 10px; margin-top: 8px;
+      border: 1.5px dashed var(--grey-border); border-radius: 7px;
+      color: var(--grey-text); font-size: 13px; font-weight: 500; cursor: pointer;
+      background: none; font-family: inherit;
+      transition: border-color 0.15s, color 0.15s, background 0.15s;
+    }
+    .add-cat-btn:hover { border-color: var(--teal); color: var(--teal-dark); background: #f0fdfa; }
+    .add-inline-form {
+      display: flex; align-items: center; gap: 6px; padding: 7px 0 4px;
+    }
+    .add-inline-input {
+      flex: 1; border: 1.5px solid var(--teal); border-radius: 6px;
+      padding: 6px 10px; font-size: 13px; font-family: inherit; outline: none; color: var(--navy);
+    }
+    .add-inline-confirm {
+      background: var(--teal-dark); color: white; border: none; border-radius: 6px;
+      padding: 6px 12px; cursor: pointer; font-size: 13px; font-weight: 600; font-family: inherit;
+    }
+    .add-inline-confirm:hover { background: var(--teal); }
+    .add-inline-cancel {
+      background: none; border: 1px solid var(--grey-border); border-radius: 6px;
+      padding: 6px 10px; cursor: pointer; font-size: 13px; color: var(--grey-text); font-family: inherit;
+    }
+    .add-inline-cancel:hover { background: var(--grey-mid); }
+
     /* ─── CONTENT SCREEN LAYOUT ───────────────────── */
     #screen-content .content-area {
       display: flex;
@@ -915,6 +952,10 @@
           </div>
           <div class="cat-body"></div>
         </div>
+        <button class="add-cat-btn" onclick="startAddCategory(this)">
+          <svg width="14" height="14" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"/></svg>
+          Add Category
+        </button>
       </div><!-- /content-scroll -->
 
       <div class="add-panel">
@@ -1268,7 +1309,7 @@
       </div><!-- /tem-scroll -->
       <div class="modal-foot" style="flex-shrink:0;">
         <button class="btn-cancel" onclick="closeTopicEditModal()">Cancel</button>
-        <button class="btn-primary" onclick="closeTopicEditModal(); toast('✓ Topic saved')">Save changes</button>
+        <button class="btn-primary" onclick="saveTopicEditContent()">Save changes</button>
       </div>
     </div><!-- /content tab -->
 
@@ -1416,11 +1457,187 @@
     }
   }
 
+  /* ══════════════════════════════════════
+     ADD CATEGORY / SUBCATEGORY / TOPIC
+  ══════════════════════════════════════ */
+  var CAT_ICONS  = ['📋','🏠','🌟','🎯','💡','🗺️','🎨','🏖️','🌿','🎵','🔧','📸','🍴','🚿','🛎️'];
+  var TOPIC_ICONS = ['📄','🏠','🗺️','🎯','💡','⭐','🔑','📌','🌟','✈️','🍴','🎨','🌿','🎵','🚗'];
+  var TOPIC_GRADS = [
+    'linear-gradient(135deg,#fde68a,#f59e0b)',
+    'linear-gradient(135deg,#bfdbfe,#3b82f6)',
+    'linear-gradient(135deg,#d1fae5,#10b981)',
+    'linear-gradient(135deg,#fce7f3,#ec4899)',
+    'linear-gradient(135deg,#e0e7ff,#6366f1)',
+    'linear-gradient(135deg,#cffafe,#06b6d4)',
+    'linear-gradient(135deg,#fed7aa,#f97316)',
+    'linear-gradient(135deg,#f0fdf4,#22c55e)',
+  ];
+  var _createTargetCatBody = null;
+
+  // Inject Add Topic / Add Subcategory buttons into every cat-body that doesn't have them yet
+  function initCatAddButtons() {
+    document.querySelectorAll('#screen-content .cat-body').forEach(function(body) {
+      if (!body.querySelector('.add-inline-btns')) {
+        var btns = document.createElement('div');
+        btns.className = 'add-inline-btns';
+        btns.innerHTML =
+          '<button class="add-inline-btn" onclick="startAddTopic(this.closest(\'.cat-body\'))">'
+          + '<svg width="12" height="12" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"/></svg>'
+          + ' Add Topic</button>'
+          + '<button class="add-inline-btn" onclick="startAddSubcat(this.closest(\'.cat-body\'))">'
+          + '<svg width="12" height="12" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"/></svg>'
+          + ' Add Subcategory</button>';
+        body.appendChild(btns);
+      }
+    });
+  }
+
+  // ── Add Topic: open Edit Topic modal in create mode ──
+  function startAddTopic(catBody) {
+    _createTargetCatBody = catBody;
+    _editingTopicRow = null;
+    document.getElementById('tem-title-input').value = '';
+    document.getElementById('tem-content-body').innerHTML =
+      '<p>Start writing your topic content here…</p>';
+    document.getElementById('tem-tags-chips').innerHTML = '';
+    _temCheckedTags = {};
+    Object.keys(tagGuidebooks).forEach(function(t) { _temCheckedTags[t] = false; });
+    renderVisibilityTab();
+    switchTopicEditTab('content', document.querySelector('#topic-edit-modal .tem-section-tab'));
+    document.getElementById('topic-edit-modal').classList.add('open');
+  }
+
+  // ── Save topic: handles both create and edit ──
+  function saveTopicEditContent() {
+    var title = document.getElementById('tem-title-input').value.trim();
+    if (!title) { toast('Please enter a title'); return; }
+
+    if (_editingTopicRow) {
+      // Edit mode: update displayed name
+      var nameEl = _editingTopicRow.querySelector('.topic-name');
+      if (nameEl) nameEl.textContent = title;
+      closeTopicEditModal();
+      toast('✓ "' + title + '" saved');
+    } else if (_createTargetCatBody) {
+      // Create mode: build a new guidebook-specific topic row
+      var icon = TOPIC_ICONS[Math.floor(Math.random() * TOPIC_ICONS.length)];
+      var grad = TOPIC_GRADS[Math.floor(Math.random() * TOPIC_GRADS.length)];
+      var row = document.createElement('div');
+      row.className = 'topic-row editable slide-in';
+      row.setAttribute('onclick', 'openTopicEditModal(this)');
+      row.innerHTML =
+        '<div class="topic-thumb" style="background:' + grad + '">' + icon + '</div>'
+        + '<div class="topic-main">'
+        + '<span class="topic-name">' + title + '</span>'
+        + '<div class="topic-meta"><span class="tag tag-gb">Beach Retreat Villa</span></div>'
+        + '</div>';
+      var btns = _createTargetCatBody.querySelector('.add-inline-btns');
+      _createTargetCatBody.insertBefore(row, btns);
+      // Expand category if collapsed
+      if (!_createTargetCatBody.classList.contains('open')) {
+        _createTargetCatBody.classList.add('open');
+        var chevron = _createTargetCatBody.previousElementSibling &&
+          _createTargetCatBody.previousElementSibling.querySelector('.chevron');
+        if (chevron) chevron.classList.add('open');
+      }
+      setTimeout(function() { row.classList.remove('slide-in'); }, 400);
+      closeTopicEditModal();
+      toast('✓ Topic "' + title + '" created');
+      _createTargetCatBody = null;
+    }
+  }
+
+  // ── Add Subcategory: inline form inside the cat-body ──
+  function startAddSubcat(catBody) {
+    // Avoid double forms
+    if (catBody.querySelector('.add-inline-form')) return;
+    var btns = catBody.querySelector('.add-inline-btns');
+    var form = document.createElement('div');
+    form.className = 'add-inline-form';
+    form.innerHTML =
+      '<input class="add-inline-input" placeholder="Subcategory name…" maxlength="60">'
+      + '<button class="add-inline-confirm" onclick="confirmAddSubcat(this)">Add</button>'
+      + '<button class="add-inline-cancel" onclick="cancelInlineForm(this)">Cancel</button>';
+    catBody.insertBefore(form, btns);
+    form.querySelector('input').focus();
+    // Expand if needed
+    if (!catBody.classList.contains('open')) {
+      catBody.classList.add('open');
+      var chevron = catBody.previousElementSibling && catBody.previousElementSibling.querySelector('.chevron');
+      if (chevron) chevron.classList.add('open');
+    }
+  }
+
+  function confirmAddSubcat(btn) {
+    var form = btn.closest('.add-inline-form');
+    var name = form.querySelector('input').value.trim();
+    if (!name) { form.querySelector('input').focus(); return; }
+    var catBody = form.parentElement;
+    var subcat = document.createElement('div');
+    subcat.className = 'subcat-row slide-in';
+    subcat.innerHTML = '<span class="subcat-arrow">↳</span><span class="subcat-name">' + name + '</span>';
+    catBody.insertBefore(subcat, form);
+    setTimeout(function() { subcat.classList.remove('slide-in'); }, 400);
+    form.remove();
+    toast('✓ Subcategory "' + name + '" added');
+  }
+
+  // ── Add Category: inline form below the cat-tree ──
+  function startAddCategory(btn) {
+    if (btn.nextElementSibling && btn.nextElementSibling.classList.contains('add-inline-form')) return;
+    btn.style.display = 'none';
+    var form = document.createElement('div');
+    form.className = 'add-inline-form';
+    form.innerHTML =
+      '<input class="add-inline-input" placeholder="Category name…" maxlength="60">'
+      + '<button class="add-inline-confirm" onclick="confirmAddCategory(this)">Add</button>'
+      + '<button class="add-inline-cancel" onclick="cancelAddCategory(this)">Cancel</button>';
+    btn.parentElement.insertBefore(form, btn.nextSibling);
+    form.querySelector('input').focus();
+  }
+
+  function confirmAddCategory(btnEl) {
+    var form = btnEl.closest('.add-inline-form');
+    var name = form.querySelector('input').value.trim();
+    if (!name) { form.querySelector('input').focus(); return; }
+    var icon = CAT_ICONS[Math.floor(Math.random() * CAT_ICONS.length)];
+    var catTree = document.querySelector('#screen-content .cat-tree');
+    // Create row
+    var catRow = document.createElement('div');
+    catRow.className = 'cat-row';
+    catRow.setAttribute('onclick', 'toggleCat(this)');
+    catRow.innerHTML =
+      '<span class="cat-icon">' + icon + '</span>'
+      + '<span class="cat-name">' + name + '</span>'
+      + '<span class="chevron">▾</span>';
+    // Create body
+    var catBody = document.createElement('div');
+    catBody.className = 'cat-body';
+    catTree.appendChild(catRow);
+    catTree.appendChild(catBody);
+    initCatAddButtons(); // inject add-topic/subcat buttons into new body
+    form.remove();
+    var addBtn = document.querySelector('.add-cat-btn');
+    if (addBtn) addBtn.style.display = '';
+    toast('✓ Category "' + name + '" created');
+  }
+
+  function cancelAddCategory(btnEl) {
+    btnEl.closest('.add-inline-form').remove();
+    var addBtn = document.querySelector('.add-cat-btn');
+    if (addBtn) addBtn.style.display = '';
+  }
+
+  function cancelInlineForm(btn) {
+    btn.closest('.add-inline-form').remove();
+  }
+
   function renderAll() {
     Object.keys(topicTags).forEach(renderTopicRow);
     Object.keys(tagGuidebooks).forEach(renderTagItem);
     renderGuidebookTags();
     searchAddContent('');
+    initCatAddButtons();
   }
 
   function renderGuidebookTags() {
