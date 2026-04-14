@@ -1500,14 +1500,6 @@
         </div>
         <input type="text" class="tem-title-input" placeholder="https://tripadvisor.com/…" style="font-size:13px;">
 
-        <hr class="tem-sep">
-
-        <!-- Tags -->
-        <div class="tem-field-header">
-          <label class="tem-field-label">Tags <span style="font-weight:400;color:#94a3b8">ℹ</span></label>
-          <button class="tem-insert-btn">+ New tag</button>
-        </div>
-        <div id="tem-tags-chips" style="display:flex;gap:6px;flex-wrap:wrap;margin-top:4px;"></div>
 
       </div><!-- /tem-scroll -->
       <div class="modal-foot" style="flex-shrink:0;">
@@ -1871,7 +1863,7 @@
     _editingTopicRow = null;
     document.getElementById('tem-title-input').value = '';
     document.getElementById('tem-content-body').innerHTML = '<p>Start writing your topic content here…</p>';
-    document.getElementById('tem-tags-chips').innerHTML = '';
+    var _tci = document.getElementById('tem-tags-chips'); if (_tci) _tci.innerHTML = '';
     _temCheckedTags = {};
     Object.keys(tagGuidebooks).forEach(function(t) { _temCheckedTags[t] = false; });
     _temDirectGuidebooks = { 'Beach Retreat Villa': true };
@@ -1909,7 +1901,7 @@
     document.getElementById('tem-title-input').value = '';
     document.getElementById('tem-content-body').innerHTML =
       '<p>Start writing your topic content here…</p>';
-    document.getElementById('tem-tags-chips').innerHTML = '';
+    var _tci = document.getElementById('tem-tags-chips'); if (_tci) _tci.innerHTML = '';
     _temCheckedTags = {};
     Object.keys(tagGuidebooks).forEach(function(t) { _temCheckedTags[t] = false; });
     _temDirectGuidebooks = { 'Beach Retreat Villa': true }; // new topics default to current guidebook
@@ -2389,7 +2381,7 @@
     var assignedTags = topicTags[name] || [];
     var chipsEl = document.getElementById('tem-tags-chips');
     var allTagNames = Object.keys(tagGuidebooks);
-    chipsEl.innerHTML = allTagNames.map(function(t) {
+    if (chipsEl) chipsEl.innerHTML = allTagNames.map(function(t) {
       var active = assignedTags.indexOf(t) >= 0;
       return '<span class="tag ' + (active ? 'tag-sh' : '') + '" '
         + 'style="' + (!active ? 'background:#f1f5f9;color:#94a3b8;border:1px dashed #cbd5e1;' : '') + '">'
