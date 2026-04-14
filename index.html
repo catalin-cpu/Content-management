@@ -3370,17 +3370,23 @@
     'Wi-Fi Setup':         ['kitchen hardware']
   };
 
+  // Direct guidebook assignments not mediated by a tag (topic name → [guidebook names])
+  var topicDirectGbs = {};
+
   // currently open topic/tag in modal
   var _currentTopic = null;
   var _currentTag   = null;
 
-  /* ── Compute guidebooks for a topic (union across its tags) ── */
+  /* ── Compute guidebooks for a topic: union of tag-derived + directly assigned ── */
   function getTopicGuidebooks(topicId) {
     var seen = {}, result = [];
     (topicTags[topicId] || []).forEach(function(t) {
       (tagGuidebooks[t] || []).forEach(function(gb) {
         if (!seen[gb]) { seen[gb] = true; result.push(gb); }
       });
+    });
+    (topicDirectGbs[topicId] || []).forEach(function(gb) {
+      if (!seen[gb]) { seen[gb] = true; result.push(gb); }
     });
     return result;
   }
@@ -4038,8 +4044,10 @@
       _temCheckedTags[t] = assignedTags.indexOf(t) >= 0;
     });
 
-    // Init direct guidebooks: guidebook-specific topics are directly in their own guidebook
+    // Init direct guidebooks: start from persisted direct assignments,
+    // then also include any guidebook-specific tag-gb chip on the row
     _temDirectGuidebooks = {};
+    (topicDirectGbs[name] || []).forEach(function(gb) { _temDirectGuidebooks[gb] = true; });
     var gbTag = row.querySelector('.tag-gb');
     if (gbTag) { _temDirectGuidebooks[gbTag.textContent.trim()] = true; }
 
@@ -4171,6 +4179,9 @@
     if (_editingTopicRow) {
       var name = _editingTopicRow.querySelector('.topic-name').textContent.trim();
       topicTags[name] = newTags;
+      // Persist direct guidebook assignments (not derived from a tag)
+      var directGbs = Object.keys(_temDirectGuidebooks).filter(function(gb) { return _temDirectGuidebooks[gb]; });
+      topicDirectGbs[name] = directGbs;
       renderTopicRowTags(_editingTopicRow, newTags, getTopicGuidebooks(name));
       // Also sync any other rows that share the same data-topic (genuinely shared library topics)
       var topicAttr = _editingTopicRow.getAttribute('data-topic');
