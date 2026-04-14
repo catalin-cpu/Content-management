@@ -1751,10 +1751,12 @@
   function renderGuidebookTags() {
     var el = document.getElementById('gb-tags-bar-list');
     if (!el) return;
-    var myTags = Object.keys(tagGuidebooks).filter(function(t) {
-      return tagGuidebooks[t].indexOf('Beach Retreat Villa') >= 0;
+    // Derive tags from what's actually in the DOM right now (deduped)
+    var seen = {}, myTags = [];
+    document.querySelectorAll('#screen-content .cat-body .topic-row .topic-meta .tag.tag-sh').forEach(function(chip) {
+      var name = chip.textContent.trim();
+      if (!seen[name]) { seen[name] = true; myTags.push(name); }
     });
-    // Always prepend the guidebook name as a non-removable default chip
     var defaultChip = '<span class="tag tag-gb" style="cursor:default;" title="Default — cannot be removed">Beach Retreat Villa</span>';
     var removableChips = myTags.map(function(t) {
       return '<span class="tag tag-sh tag-removable" onclick="confirmRemoveTag(\'' + t.replace(/'/g,"\\'") + '\')" title="Click to remove topics with this tag">' + t + ' ✕</span>';
@@ -2046,8 +2048,9 @@
     // Remove animation class after it finishes
     setTimeout(function() { row.classList.remove('slide-in'); }, 400);
 
-    // Re-render the search results to mark as added
+    // Re-render the search results to mark as added, refresh tags bar
     searchAddContent(document.getElementById('add-search-input').value);
+    renderGuidebookTags();
 
     toast('✓ "' + topicId + '" added to guidebook');
   }
@@ -2275,6 +2278,7 @@
 
     closeRemoveTagModal();
     searchAddContent(document.getElementById('add-search-input').value);
+    renderGuidebookTags();
     toast('✓ Removed ' + removed + ' topic' + (removed !== 1 ? 's' : '') + ' with tag "' + tagName + '"');
   }
 
