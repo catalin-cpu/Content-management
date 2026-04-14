@@ -771,6 +771,14 @@
       border-radius: 8px; margin-bottom: 7px; font-size: 13px; font-weight: 500;
     }
     .tem-vis-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+    .tem-vis-search {
+      width: 100%; border: 1px solid var(--grey-border); border-radius: 20px;
+      padding: 6px 12px; font-size: 12.5px; font-family: inherit; outline: none;
+      color: var(--navy); margin-bottom: 10px; display: block;
+    }
+    .tem-vis-search:focus { border-color: var(--teal); }
+    .tem-vis-gb-row input[disabled] { opacity: 0.45; cursor: not-allowed; }
+    .tem-vis-via-tag { font-size: 11px; color: #94a3b8; font-style: italic; white-space: nowrap; }
 
     /* ─── SLIDE-IN ANIMATION ──────────────────────── */
     @keyframes slideInTopic {
@@ -1319,11 +1327,21 @@
 
         <div class="tem-vis-section">
           <div class="tem-vis-label">Tags</div>
+          <input type="text" id="tem-tag-search" class="tem-vis-search"
+            placeholder="Search tags…" oninput="filterTemTags(this.value)">
           <div id="tem-vis-tags-list"></div>
+          <div id="tem-new-tag-area">
+            <button class="add-inline-btn" style="width:100%;margin-top:4px;" onclick="showNewTagInput()">
+              <svg width="11" height="11" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"/></svg>
+              New tag
+            </button>
+          </div>
         </div>
 
         <div class="tem-vis-section">
           <div class="tem-vis-label">Guidebooks receiving this content</div>
+          <input type="text" id="tem-gb-search" class="tem-vis-search"
+            placeholder="Search guidebooks…" oninput="filterTemGuidebooks(this.value)">
           <div id="tem-vis-gb-list"></div>
         </div>
 
@@ -1502,6 +1520,7 @@
     document.getElementById('tem-tags-chips').innerHTML = '';
     _temCheckedTags = {};
     Object.keys(tagGuidebooks).forEach(function(t) { _temCheckedTags[t] = false; });
+    _temDirectGuidebooks = { 'Beach Retreat Villa': true }; // new topics default to current guidebook
     renderVisibilityTab();
     switchTopicEditTab('content', document.querySelector('#topic-edit-modal .tem-section-tab'));
     document.getElementById('topic-edit-modal').classList.add('open');
@@ -1947,8 +1966,8 @@
      TOPIC EDIT MODAL
   ══════════════════════════════════════ */
   var _editingTopicRow = null;
-  // In-modal checked-tag state for visibility tab
-  var _temCheckedTags = {};
+  var _temCheckedTags = {};       // tag name → bool (checked in visibility tab)
+  var _temDirectGuidebooks = {};  // guidebook name → bool (directly assigned, not via tag)
 
   function openTopicEditModal(row) {
     _editingTopicRow = row;
@@ -1974,6 +1993,11 @@
       _temCheckedTags[t] = assignedTags.indexOf(t) >= 0;
     });
 
+    // Init direct guidebooks: guidebook-specific topics are directly in their own guidebook
+    _temDirectGuidebooks = {};
+    var gbTag = row.querySelector('.tag-gb');
+    if (gbTag) { _temDirectGuidebooks[gbTag.textContent.trim()] = true; }
+
     // Render visibility tab
     renderVisibilityTab();
 
@@ -1996,46 +2020,57 @@
     });
   }
 
+  function _getTemSearchValues() {
+    var ts = document.getElementById('tem-tag-search');
+    var gs = document.getElementById('tem-gb-search');
+    return { tagQ: ts ? ts.value.toLowerCase() : '', gbQ: gs ? gs.value.toLowerCase() : '' };
+  }
+
   function renderVisibilityTab() {
-    // Tags section with checkboxes
+    var q = _getTemSearchValues();
     var allTagNames = Object.keys(tagGuidebooks);
+
+    // ── Tags section ──
     var tagsEl = document.getElementById('tem-vis-tags-list');
-    tagsEl.innerHTML = allTagNames.map(function(t) {
-      var checked = _temCheckedTags[t];
-      return '<label class="tem-vis-cb-row" style="cursor:pointer">'
-        + '<input type="checkbox" ' + (checked ? 'checked' : '') + ' onchange="toggleTemTag(\'' + t.replace(/'/g,"\\'") + '\', this.checked)" '
-        + 'style="width:16px;height:16px;accent-color:var(--teal-dark);cursor:pointer;">'
-        + '<span class="tag tag-sh">' + t + '</span>'
-        + '</label>';
-    }).join('');
-
-    // Guidebooks section — union of guidebooks across checked tags
-    // Always include the direct guidebook if topic is guidebook-specific
-    var gbSet = {};
-    var row = _editingTopicRow;
-    if (row && row.querySelector('.tag-gb')) {
-      // This is a guidebook-specific topic — always in its own guidebook
-      var gbTag = row.querySelector('.tag-gb').textContent.trim();
-      gbSet[gbTag] = true;
-    }
-    allTagNames.forEach(function(t) {
-      if (_temCheckedTags[t]) {
-        (tagGuidebooks[t] || []).forEach(function(gb) { gbSet[gb] = true; });
-      }
+    if (!tagsEl) return;
+    var filteredTags = allTagNames.filter(function(t) {
+      return !q.tagQ || t.toLowerCase().includes(q.tagQ);
     });
+    tagsEl.innerHTML = filteredTags.length
+      ? filteredTags.map(function(t) {
+          var checked = _temCheckedTags[t];
+          return '<label class="tem-vis-cb-row" style="cursor:pointer;gap:10px;">'
+            + '<input type="checkbox" ' + (checked ? 'checked' : '') + ' onchange="toggleTemTag(\'' + t.replace(/'/g,"\\'") + '\', this.checked)"'
+            + ' style="width:16px;height:16px;accent-color:var(--teal-dark);cursor:pointer;flex-shrink:0;">'
+            + '<span class="tag tag-sh">' + t + '</span>'
+            + '</label>';
+        }).join('')
+      : '<div style="font-size:12px;color:#94a3b8;padding:8px 0;">No tags found</div>';
 
+    // ── Guidebooks section ──
+    // For each guidebook: is it enabled via a checked tag? directly assigned?
     var gbListEl = document.getElementById('tem-vis-gb-list');
-    var gbNames = Object.keys(gbSet);
-    if (gbNames.length === 0) {
-      gbListEl.innerHTML = '<div style="font-size:12.5px;color:#94a3b8;font-style:italic;padding:8px 0;">Not visible in any guidebook</div>';
-    } else {
-      gbListEl.innerHTML = gbNames.map(function(gb) {
-        return '<div class="tem-vis-gb-row">'
-          + '<span class="tem-vis-dot" style="background:' + (GB_COLORS[gb] || '#94a3b8') + '"></span>'
-          + '<span>' + gb + '</span>'
-          + '</div>';
-      }).join('');
-    }
+    if (!gbListEl) return;
+    var filteredGBs = ALL_GUIDEBOOKS.filter(function(gb) {
+      return !q.gbQ || gb.toLowerCase().includes(q.gbQ);
+    });
+    gbListEl.innerHTML = filteredGBs.map(function(gb) {
+      var viaTagNames = allTagNames.filter(function(t) {
+        return _temCheckedTags[t] && (tagGuidebooks[t] || []).indexOf(gb) >= 0;
+      });
+      var viaTag      = viaTagNames.length > 0;
+      var direct      = !!_temDirectGuidebooks[gb];
+      var isChecked   = viaTag || direct;
+      var isDisabled  = viaTag && !direct; // can't uncheck — tag forces it
+      return '<div class="tem-vis-gb-row">'
+        + '<input type="checkbox" ' + (isChecked ? 'checked' : '') + (isDisabled ? ' disabled' : '')
+        + (isDisabled ? '' : ' onchange="toggleTemGuidebook(\'' + gb.replace(/'/g,"\\'") + '\', this.checked)"')
+        + ' style="width:15px;height:15px;accent-color:var(--teal-dark);flex-shrink:0;cursor:' + (isDisabled ? 'not-allowed' : 'pointer') + ';">'
+        + '<span class="tem-vis-dot" style="background:' + (GB_COLORS[gb] || '#94a3b8') + '"></span>'
+        + '<span style="flex:1;font-size:13px;">' + gb + '</span>'
+        + (viaTag ? '<span class="tem-vis-via-tag">via ' + viaTagNames[0] + '</span>' : '')
+        + '</div>';
+    }).join('');
   }
 
   function toggleTemTag(tagName, checked) {
@@ -2043,14 +2078,58 @@
     renderVisibilityTab();
   }
 
+  function toggleTemGuidebook(gb, checked) {
+    if (checked) { _temDirectGuidebooks[gb] = true; }
+    else { delete _temDirectGuidebooks[gb]; }
+    renderVisibilityTab();
+  }
+
+  function filterTemTags(q) { renderVisibilityTab(); }
+  function filterTemGuidebooks(q) { renderVisibilityTab(); }
+
+  // ── New tag creation ──
+  function showNewTagInput() {
+    var area = document.getElementById('tem-new-tag-area');
+    area.innerHTML = '<div class="add-inline-form" style="margin-top:4px;">'
+      + '<input class="add-inline-input" id="tem-new-tag-input" placeholder="New tag name…" maxlength="40"'
+      + ' onkeydown="if(event.key===\'Enter\')confirmNewTag(); if(event.key===\'Escape\')cancelNewTag();">'
+      + '<button class="add-inline-confirm" onclick="confirmNewTag()">Add</button>'
+      + '<button class="add-inline-cancel" onclick="cancelNewTag()">Cancel</button>'
+      + '</div>';
+    document.getElementById('tem-new-tag-input').focus();
+  }
+
+  function confirmNewTag() {
+    var input = document.getElementById('tem-new-tag-input');
+    var name = input.value.trim().toLowerCase();
+    if (!name) { input.focus(); return; }
+    if (tagGuidebooks[name]) { toast('Tag "' + name + '" already exists'); return; }
+    tagGuidebooks[name] = [];
+    _temCheckedTags[name] = true;
+    cancelNewTag();
+    renderVisibilityTab();
+    renderGuidebookTags();
+    // Reset tag search so the new tag is visible
+    var ts = document.getElementById('tem-tag-search');
+    if (ts) ts.value = '';
+    toast('✓ Tag "' + name + '" created');
+  }
+
+  function cancelNewTag() {
+    var area = document.getElementById('tem-new-tag-area');
+    area.innerHTML = '<button class="add-inline-btn" style="width:100%;margin-top:4px;" onclick="showNewTagInput()">'
+      + '<svg width="11" height="11" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"/></svg>'
+      + ' New tag</button>';
+  }
+
   function saveTopicVisibility() {
-    if (!_editingTopicRow) return;
-    var name = _editingTopicRow.querySelector('.topic-name').textContent.trim();
-    // Apply checked tags to topicTags state
     var newTags = Object.keys(_temCheckedTags).filter(function(t) { return _temCheckedTags[t]; });
-    topicTags[name] = newTags;
+    if (_editingTopicRow) {
+      var name = _editingTopicRow.querySelector('.topic-name').textContent.trim();
+      topicTags[name] = newTags;
+    }
     closeTopicEditModal();
-    toast('✓ Visibility updated for "' + name + '"');
+    toast('✓ Visibility saved');
   }
 
   /* ══════════════════════════════════════
